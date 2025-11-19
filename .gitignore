@@ -1,0 +1,16 @@
+# Explicit allow
+*
+!*/
+!.gitignore
+
+# Source code
+!*.R
+!*.Rmd
+!*.py
+
+# Documentation
+!*.tex
+
+# Data files
+!*.xml
+!*.csv

@@ -1,0 +1,114 @@
+\documentclass[12 pt]{article}  % sets the font to 12 pt and says this is an 
+                                % article (as opposed to book or other documents)
+\usepackage{amsfonts, amssymb}  % math fonts and symbols
+\usepackage{amsmath}            % math
+\usepackage{enumitem}           % change enumeration bullet styles
+\usepackage{graphicx}           % graphics
+\usepackage{xcolor}             % color
+\usepackage{hyperref}           % linkable references
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan
+    }
+  
+%\usepackage{setspace}          % Together with \doublespacing below allows for
+                                % doublespacing of the document
+
+\oddsidemargin=-0.5cm
+\setlength{\textwidth}{7in}
+\addtolength{\voffset}{-20pt}
+\addtolength{\headsep}{25pt}
+\renewcommand\thefootnote{[\arabic{footnote}]} % Bracketed footnotes
+
+                                        % Macro definitions for the header
+\newcommand{\myteam}{Miles Leonard,
+                     Danny Nguyen}      % Name
+\newcommand{\myid}{OU ID: 113687989}    % Student ID
+\newcommand{\myclass}{DSA 5103}         % Class
+\newcommand{\myassignment}{Project Proposal}  % Assignment designator
+
+% Page headers automatically horizontal fill; Name ID Date Class Assignment Page.No.
+\pagestyle{myheadings}
+\markright{\myteam \hfill \today \hfill \myclass \hfill \myassignment \hfill }
+
+\newcommand{\eqn}[0]{\begin{array}{rcl}}    % begin an aligned equation - allows
+                                            % for aligning = or inequalities.
+                                            % Always use with $$ $$
+\newcommand{\eqnend}[0]{\end{array} }  	    % end the aligned equation
+
+\newcommand{\qed}[0]{$\square$}     % make an unfilled square the
+                                    % default for ending a proof
+
+% Common number sets, must be in math mode
+\newcommand{\Naturals}[0]{\mathbb{N}}   % Natural numbers
+\newcommand{\Integers}[0]{\mathbb{Z}}   % Integers
+\newcommand{\Rationals}[0]{\mathbb{Q}}  % Rationals
+\newcommand{\Reals}[0]{\mathbb{R}}      % Reals
+\newcommand{\Complex}[0]{\mathbb{C}}    % Complex
+
+\newcommand{\heading}[1]{\noindent\large{\textbf{#1}}}  % for sections
+\newcommand{\problem}[1]{\noindent\paragraph{#1:}}      % for problem labels
+
+%\doublespacing         % Together with the package setspace above allows for
+                        % doublespacing of the document
+
+% Use these commands for self-assessments
+\newcommand{\correct}[1]{\colorbox{green}{\checkmark #1}}   % mark correct
+\newcommand{\correction}[1]{{\color{red}\textbf{#1}}}       % write a correction
+
+\begin{document}
+
+\section*{Project Proposal}
+
+\paragraph{Team Members:} Miles Leonard, Danny Nguyen
+
+\paragraph{Project Title:} Modeling light pollution using various geospatial data sources
+
+\paragraph{Description of Data/Problem:} Light pollution is a night-time phenomenon
+caused by the atmospheric scattering of excess light from things such as street 
+lamps or other outdoor light fixtures that then bounces off of molecules in the air. 
+Light pollution is commonly measured as night sky brightness (in magnitudes per square 
+arcsecond), but is typically only directly measured at sites like observatories. 
+Even then, data from these observatories is rarely accessible in real-time. The 
+Globe at Night campaign created a monitoring network for observatories across the 
+world to provide night sky brightness data for public use, with data going back 
+as far as 2014. Light pollution, being an atmospheric phenomenon, is heavily 
+impacted by weather conditions. The objective for this project is to predict light 
+pollution (night sky brightness) at a given location using primarily meteorological, 
+energy usage, and population data.
+
+\paragraph{Proposed Solution:} Using supervised learning techniques, associate 
+the light pollution data for observatories to their distances from population 
+centers, local energy usage, and meteorological conditions. We plan to use the 
+processed data to construct a regression model to predict light pollution for 
+any location.
+
+\paragraph{Data Sources:}
+
+\begin{enumerate}
+    \item Light pollution data (night sky brightness)\\
+    \url{https://globeatnight.org/gan-mn/}
+
+    \item Meteorological data (multiple variables):\\
+    \url{https://cds.climate.copernicus.eu/datasets/reanalysis-era5-pressure-levels}
+
+    \item U.S. Energy Information Administration Open Data (Maybe draw a correlation to state energy usage?)\\
+    \url{https://www.eia.gov/opendata/}
+
+    \item International Energy Agency (country-level data on energy topics)\\
+    \url{https://www.iea.org/data-and-statistics/data-sets?filter=free}
+
+    \item US Population Data\\
+    \url{https://www.census.gov/data/datasets.html}
+
+    \item Population Weighted Centroid Positions by Zip Code (US only)\\
+    \url{https://catalog.data.gov/dataset/zip-code-population-weighted-centroids}
+
+    \item Census International Database Subnational Data\\
+    \url{https://www.census.gov/data-tools/demo/data/idb/excel/IDBSubnational.zip}
+
+\end{enumerate}
+
+\end{document}
