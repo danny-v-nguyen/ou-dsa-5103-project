@@ -14,3 +14,5 @@
 # Data files
 !*.xml
 !*.csv
+!*.shp
+!*.nc
