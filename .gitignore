@@ -16,4 +16,5 @@
 !*.csv
 !*.shp
 !*.nc
+!*.rds
 .Rproj.user
