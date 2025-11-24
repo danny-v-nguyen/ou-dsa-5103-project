@@ -128,3 +128,9 @@ View(zip.pop.DQR[[2]])
 zip.data <- zip.centroids.raw %>%
   left_join(zip.pop.raw, by = c("STD_ZIP5" = "ZIP_Code"))
 saveRDS(zip.data, file = "data/zip-data.rds")
+#test <- readRDS("data/zip-data.rds")
+
+elec.service.data <- electric.service.raw %>%
+  left_join(zip.centroids.raw, by = c("ZIP" = "STD_ZIP5"))
+saveRDS(elec.service.data, file = "data/elec-service-data.rds")
+#test <- readRDS("data/elec-service-data.rds")
