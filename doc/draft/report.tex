@@ -1,0 +1,264 @@
+\documentclass[11 pt]{article}  % sets the font to 12 pt and says this is an 
+                                % article (as opposed to book or other documents)
+\usepackage{amsfonts, amssymb}  % math fonts and symbols
+\usepackage{amsmath}            % math
+\usepackage{enumitem}           % change enumeration bullet styles
+\usepackage{graphicx}           % graphics
+\usepackage{xcolor}             % color
+\usepackage{hyperref}           % linkable references
+\hypersetup{colorlinks=true,
+            linkcolor=black,
+            urlcolor=blue,
+            citecolor=black
+    }
+  
+%\usepackage{setspace}          % Together with \doublespacing below allows for
+                                % doublespacing of the document
+
+\usepackage{biblatex}
+\addbibresource{references.bib}
+
+\oddsidemargin=-0.5cm
+\setlength{\textwidth}{7in}
+\addtolength{\voffset}{-20pt}
+\addtolength{\headsep}{25pt}
+\renewcommand\thefootnote{[\arabic{footnote}]} % Bracketed footnotes
+
+                                        % Macro definitions for the header
+\newcommand{\myteam}{Miles Leonard,
+                     Danny Nguyen}      % Name
+\newcommand{\myclass}{DSA 5103}         % Class
+\newcommand{\myassignment}{Project Report}  % Assignment designator
+
+% Page headers automatically horizontal fill; Name ID Date Class Assignment Page.No.
+\pagestyle{myheadings}
+\markright{\myteam \hfill \today \hfill \myclass \hfill \myassignment \hfill }
+
+\newcommand{\eqn}[0]{\begin{array}{rcl}}    % begin an aligned equation - allows
+                                            % for aligning = or inequalities.
+                                            % Always use with $$ $$
+\newcommand{\eqnend}[0]{\end{array} }  	    % end the aligned equation
+
+\newcommand{\qed}[0]{$\square$}     % make an unfilled square the
+                                    % default for ending a proof
+
+% Common number sets, must be in math mode
+\newcommand{\Naturals}[0]{\mathbb{N}}   % Natural numbers
+\newcommand{\Integers}[0]{\mathbb{Z}}   % Integers
+\newcommand{\Rationals}[0]{\mathbb{Q}}  % Rationals
+\newcommand{\Reals}[0]{\mathbb{R}}      % Reals
+\newcommand{\Complex}[0]{\mathbb{C}}    % Complex
+
+\newcommand{\heading}[1]{\noindent\large{\textbf{#1}} \normalsize}  % for sections
+\newcommand{\problem}[1]{\noindent\paragraph{#1:}}      % for problem labels
+
+%\doublespacing         % Together with the package setspace above allows for
+                        % doublespacing of the document
+
+\title{Modeling light pollution using geospatial, meteorologoical, energy usage, 
+       and population data}
+\author{\myteam\\
+        Group 1\\
+        Instructor: Dr. Charles Nicholson\\
+        \myclass -- Fall 2025}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+\pagebreak
+
+\tableofcontents
+\listoffigures
+\listoftables
+\pagebreak
+
+\section{Executive Summary}
+
+% 1 full page summarizing your work. Do not go over one page.
+% – Concise problem statement
+% – List of major concerns/assumptions (if any)
+% – Summary of findings (include quantifiable information, e.g., CV R2 = 0.984)
+% – Recommendations
+
+\paragraph{Problem Statement} Light pollution is a night-time phenomenon
+caused by the atmospheric scattering of excess light from things such as street 
+lamps or other outdoor light fixtures that then bounces off of molecules in the air. 
+Light pollution is commonly measured as night sky brightness (in magnitudes per square 
+arcsecond), but is typically only directly measured at sites like observatories. 
+Even then, data from these observatories is rarely accessible in real-time. The 
+Globe at Night campaign created a monitoring network for observatories across the 
+world to provide night sky brightness data for public use, with data going back 
+as far as 2014. Light pollution, being an atmospheric phenomenon, is heavily 
+impacted by weather conditions. The objective for this project is to predict light 
+pollution (night sky brightness) at a given location using primarily meteorological, 
+energy usage, and population data.
+
+\paragraph{Major Concerns/Assumptions} TO-DO
+
+\paragraph{Summary of Findings} TO-DO
+
+\paragraph{Recommendations} TO-DO
+
+\pagebreak
+
+\section{Problem Background}
+
+% – Problem description, context, background
+% – Data description
+% – Exploratory data analysis – the highlights; not the kitchen sink
+
+\subsection{Problem Description}
+
+\paragraph{}The use of artificial light at night (ALAN) in outdoor spaces—e.g., through the 
+use of light fixtures such as street lamps or flood lights—causes what is known 
+as light pollution. More specifically, improper and excessive use of ALAN, which 
+has risen dramatically alongside rapid urbanization and industrialization around 
+the globe, is the primary source of light pollution. The definition of light pollution 
+varies across different agencies, but the common denominator amongst them all is 
+that it is the culmination of the unwanted, adverse aspects of ALAN. There are 
+three main components that make up light pollution: glare, light trespass, and 
+skyglow; for the purposes of this project, however, the focus is solely on 
+skyglow\cite{Welch}. Skyglow, the most broadly impactful aspect of light pollution, 
+is the result of light being emitted upwards and then bouncing off of particles 
+in the Earth's lower atmosphere, scattering. It obscures the natural night sky, 
+preventing those in the city from being able to marvel at the stars. Those with 
+exceptional vision and access to pristine night skies are able to see up to 7,000 
+stars with the naked eye, however, that number plummets to fewer than 100 for the 
+same observer in an urban area\cite{Mizon}.
+
+\paragraph{}As it currently stands, light pollution-free skies are becoming more and more 
+difficult to find. Over 99\% of US and European populations are affected by some 
+level of light pollution, and a recent analysis found that skyglow is rapidly 
+worsening at a rate of nearly 10\% per year\cite{Kyba}. Modeling the skyglow 
+component of light pollution, typically referred to as night sky brightness, is 
+a crucial aspect of many light pollution studies. Unfortunately, there is no 
+definitive way to assess skyglow, and each method has its own pros and cons. 
+Light pollution data for modeling often comes from a combination of ground-based 
+measurements and satellite data. Ground-based measurements are most often taken 
+using a sky quality meter (SQM), but have also been derived from citizen-science 
+reports of naked-eye limiting magnitude (NELM). NELM is the magnitude (a 
+logarithmic scale describing the apparent brightness of a star) of the faintest 
+visible star to a naked-eye observer; the lower the magnitude, the brighter the 
+object. The SQM is a handheld sensor that measures the brightness of the sky 
+directly overhead in units of magnitudes per square arcsecond.
+
+\paragraph{}Due to the complexity of light emission behavior and limitations in computing 
+power, research into different modeling methods is still ongoing \cite{Kollath}. 
+Most light pollution models are numerical models based on a series of functions 
+that describe upward light flux and atmospheric scattering. Many more radiative 
+transfer-based numerical models exist, but are often tailored towards modeling 
+meteorological conditions and therefore not suitable for modeling light pollution 
+specifically \cite{Kollath}. Recently, it was found that most, if not all light 
+pollution models are significantly, systematically biased through implicitly 
+assuming that all particles in the lower atmosphere are homogenous and spherical 
+(Mie theory), despite being a safe assumption for daytime light models \cite{Kocifaj}. 
+A popular global map known as the New world atlas of artificial night sky 
+brightness \cite{Falchi} is another numerical model utilizing both ground-based 
+and satellite measurements, but assumed a perfectly clear, calm, atmosphere over 
+the entire globe. This limitation, albeit understandable, greatly impacts the 
+accuracy of its output. Atmospheric conditions vary widely across regions. Not 
+only that, but atmospheric conditions are always changing as well. Consecutive 
+measurements of skyglow in the exact same location, even just hours apart, could 
+produce different results.
+
+\paragraph{}While acknowledging that the extent of light pollution is influenced by a 
+multivariate set of economic indicators \cite{Olsen}, the current model 
+specification is limited to assessing the predictive power of population metrics 
+and energy consumption data.
+
+\subsection{Data Description}
+
+\paragraph{Night-Sky Brightness}Globe at Night (GaN) The GaN-MN project, an 
+extension of the original Globe at Night project, is a global night sky brightness 
+monitoring network using a commercially available meter (SQM-LE by Unihedron) for 
+long-term monitoring of the light pollution conditions in different places around 
+the world. \url{https://globeatnight.org/gan-mn/}
+
+\paragraph{Meteorological Data} ERA5 provides hourly estimates for a large number 
+of atmospheric, ocean-wave and land-surface quantities. An uncertainty estimate 
+is sampled by an underlying 10-member ensemble at three-hourly intervals. 
+Ensemble mean and spread have been pre-computed for convenience. Such uncertainty 
+estimates are closely related to the information content of the available observing 
+system which has evolved considerably over time. They also indicate flow-dependent 
+sensitive areas. To facilitate many climate applications, monthly-mean averages 
+have been pre-calculated too, though monthly means are not available for the 
+ensemble mean and spread. \url{https://cds.climate.copernicus.eu/datasets/reanalysis-era5-pressure-levels?tab=overview}
+
+\paragraph{Zip-Code Populations} A tabulation of the total population per zip code
+per the 2020 U.S. Census. \url{https://data.census.gov/table}
+
+\paragraph{Electric Retail Service Territories} A table of electric power retail 
+service territories in the U.S. These are areas serviced by electric power utilities 
+responsible for the retail sale of electric power to local customers, whether 
+residential, industrial, or commercial. 
+\url{https://ornl.opendatasoft.com/explore/dataset/electric-retail-service-territories/information/}
+
+\paragraph{Population-Weighted Centroids for Zip Code Tabulation Areas (ZCTAs)} 
+This dataset denotes ZIP Code centroid locations weighted by population. 
+\url{https://hudgis-hud.opendata.arcgis.com/datasets/d032efff520b4bf0aa620a54a477c70e/about}
+
+\subsection{Exploratory Data Analysis}
+
+\paragraph{Meteorological Data} ERA5 data first look blurb here.
+
+\paragraph{Electric-Service Provider Coverage} The service territories dataset is 
+missing zip-code data for approximately 58\% of electrical service providers. This 
+will limit the association of energy consumption estimates to only those zip-codes
+that are in close proximity to providers with a known zip code.
+
+\paragraph{Population} 4320 zip-codes were dropped between the intersection of
+the centroids and population datasets. This is due to zip-codes that did not have
+population data in the 2020 census data.
+
+\section{Methodology}
+
+The scope is geographically constrained to the 
+contiguous United States, leveraging population data at the ZCTA resolution 
+retrieved from the US Census Bureau. Energy consumption estimates will be derived 
+by geospatial proximity analysis linking ZCTA-level data to the operational 
+territories of adjacent utility providers. The energy consumption estimates sourced 
+from the US Department of Energy Open Data Portal is missing location data for 
+approximately 57\% of electrical service providers, resulting in a model training 
+restriction to infer nearby population centers to be proportionate to the nearest 
+electrical service providers.
+
+% – Feature selection, engineering, missing value imputation, outlier processing, etc.
+% – Modeling choices
+% – State model validation approach (e.g., 5-fold CV) — note: Do not simply do a single holdout
+% (80/20, 70/30, etc.) for anything unless you have a very good, defensible reason for doing so!
+
+\section{Results}
+
+% – Model results and performance summary
+%   * for supervised learning models, this is pretty straightforward
+%   * for unsupervised learning or other model types, you need to convince the reader of the validity
+%     of your work
+% – You should provide a detailed analysis of your best model (e.g., residual diagnostics, coefficients,
+%   feature importance, hyperparameter tuning visualizations, confusion matrices, etc.)
+% – Key findings of analysis! Tie this back to your models, assumptions, problem description, etc.
+\subsection{Model Results and Performance}
+
+\subsection{Key Findings}
+
+\section{Conclusion}
+
+% – Summary of problem, approach, findings – yes, this is a bit redundant, but this is your chance to
+%   help the reader really connect the problem statement with your work.
+% – Key insights, points out critical assumptions or limitations, etc.
+% – Final recommendation and potential impact of the work – take into account the performance of
+%   your models! For example, if your accuracy was 0.54, don’t say ”Company X can use this model
+%   to improve their profits next quarter”, such a model is not very good, so they probably can’t do
+%   that!
+
+\paragraph{Summary}
+
+\paragraph{Key Insights}
+
+\paragraph{Final Recommendations and Impact}
+
+\pagebreak
+
+\printbibliography
+
+\end{document}

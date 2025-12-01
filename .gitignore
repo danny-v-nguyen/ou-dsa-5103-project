@@ -10,6 +10,8 @@
 
 # Documentation
 !*.tex
+!*.bib
+!*.pdf
 
 # Data files
 !*.xml
