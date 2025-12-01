@@ -191,7 +191,7 @@ estimates are closely related to the information content of the available observ
 system which has evolved considerably over time. They also indicate flow-dependent 
 sensitive areas. To facilitate many climate applications, monthly-mean averages 
 have been pre-calculated too, though monthly means are not available for the 
-ensemble mean and spread. \url{https://cds.climate.copernicus.eu/datasets/reanalysis-era5-pressure-levels?tab=overview}
+ensemble mean and spread. \url{https://cds.climate.copernicus.eu/datasets/reanalysis-era5-single-levels?tab=overview}
 
 \paragraph{Zip-Code Populations} A tabulation of the total population per zip code
 per the 2020 U.S. Census. \url{https://data.census.gov/table}
@@ -209,11 +209,13 @@ This dataset denotes ZIP Code centroid locations weighted by population.
 \subsection{Exploratory Data Analysis}
 
 \paragraph{Night-Sky Brightness} The Globe at Night dataset only contains thirteen
-sites and night sky brightness readings are relatively sparse (~63\% missing).
+sites and night sky brightness readings are relatively sparse ($\sim$63\% missing); 
+however most of the missing measurements are from the daylight hours.
 Additionally the minimum time resolution of measurements is to the UTC hour instead
 of the local hour.
 
-\paragraph{Meteorological Data} There sure is a lot of ERA5 data.
+\paragraph{Meteorological Data} Given that ERA5 is a reanalysis dataset, there 
+are no missing values that must be accommodated.
 
 \paragraph{Electric-Service Provider Coverage} The service territories dataset is 
 missing zip-code data for approximately 58\% of electrical service providers.
@@ -236,16 +238,30 @@ the training data entirely. The time of observation is assumed to be close enoug
 to local time, so no time zone adjustments are made. The brightness readings are
 assumed to be correlated to the time as a cyclical feature, so the month and hour
 of observation are encoded as wave functions at an angular offset from typical 
-brightness zeniths.
+brightness zeniths. Night sky brightness observations are recorded approximately 
+every 5 minutes. However, the meteorological data is provided at an hourly 
+resolution, so the mean night sky brightness of each hour is calculated and used 
+instead. A local timestamp, as well as a UTC timestamp is recorded at the time 
+of each observation as well, but only the UTC timestamp was kept, as the ERA5 
+timestamps are provided in UTC. 
 
-\paragraph{Meteorological Data} TO-DO
+\paragraph{Meteorological Data} ERA5 is currently one of the most popular and 
+comprehensive meteorological reanalysis datasets publicly available, with a 
+horizontal spatial resolution of 0.25 by 0.25 degrees and an hourly temporal 
+resolution. While ERA5 provides a very large variety of atmospheric/meteorological 
+variables, only the variables air temperature, dewpoint temperature, surface air 
+pressure, and percentage of high cloud cover, medium cloud cover, and low cloud 
+cover were chosen for use. With the python package \texttt{astropy}, using a 
+site's location and time of observation, the altitude and azimuth of the sun and 
+moon were calculated to serve as feature variables as well.
 
 \paragraph{Electric-Service Provider} Rows with missing zip-code data for service 
 providers are dropped from the training data due to the inability to map given
 providers to sensible zip-codes.
 
 \paragraph{Population} The zip-code centroids with missing population data are
-dropped from the training data.
+dropped from the training data. The values for population are not being estimated
+for time-adjusted values.
 
 \paragraph{Expected Energy Usage} The assumption is made that energy usage by
 nearby population centers is correlated to their nearest electric-service providers.
