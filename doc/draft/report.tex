@@ -64,7 +64,7 @@
 \date{\today}
 
 \begin{document}
-
+\pagenumbering{roman}
 \maketitle
 \pagebreak
 
@@ -73,6 +73,8 @@
 \listoftables
 \pagebreak
 
+\pagenumbering{arabic}
+\setcounter{page}{1}
 \section{Executive Summary}
 
 % 1 full page summarizing your work. Do not go over one page.
@@ -200,33 +202,67 @@ This dataset denotes ZIP Code centroid locations weighted by population.
 
 \subsection{Exploratory Data Analysis}
 
-\paragraph{Meteorological Data} ERA5 data first look blurb here.
+\paragraph{Night-Sky Brightness} The Globe at Night dataset only contains thirteen
+sites and night sky brightness readings are relatively sparse (~63\% missing).
+Additionally the minimum time resolution of measurements is to the UTC hour instead
+of the local hour.
+
+\paragraph{Meteorological Data} There sure is a lot of ERA5 data.
 
 \paragraph{Electric-Service Provider Coverage} The service territories dataset is 
-missing zip-code data for approximately 58\% of electrical service providers. This 
-will limit the association of energy consumption estimates to only those zip-codes
-that are in close proximity to providers with a known zip code.
+missing zip-code data for approximately 58\% of electrical service providers.
 
-\paragraph{Population} 4320 zip-codes were dropped between the intersection of
+\paragraph{Population} 4320 zip-codes are missing between the intersection of
 the centroids and population datasets. This is due to zip-codes that did not have
 population data in the 2020 census data.
 
 \section{Methodology}
 
-The scope is geographically constrained to the 
-contiguous United States, leveraging population data at the ZCTA resolution 
-retrieved from the US Census Bureau. Energy consumption estimates will be derived 
-by geospatial proximity analysis linking ZCTA-level data to the operational 
-territories of adjacent utility providers. The energy consumption estimates sourced 
-from the US Department of Energy Open Data Portal is missing location data for 
-approximately 57\% of electrical service providers, resulting in a model training 
-restriction to infer nearby population centers to be proportionate to the nearest 
-electrical service providers.
-
 % – Feature selection, engineering, missing value imputation, outlier processing, etc.
 % – Modeling choices
 % – State model validation approach (e.g., 5-fold CV) — note: Do not simply do a single holdout
 % (80/20, 70/30, etc.) for anything unless you have a very good, defensible reason for doing so!
+
+\subsection{Feature Selection}
+
+\paragraph{Night-Sky Brightness} Missing brightness readings are dropped from
+the training data entirely. The time of observation is assumed to be close enough
+to local time, so no time zone adjustments are made. The brightness readings are
+assumed to be correlated to the time as a cyclical feature, so the month and hour
+of observation are encoded as wave functions at an angular offset from typical 
+brightness zeniths.
+
+\paragraph{Meteorological Data} TO-DO
+
+\paragraph{Electric-Service Provider} Rows with missing zip-code data for service 
+providers are dropped from the training data due to the inability to map given
+providers to sensible zip-codes.
+
+\paragraph{Population} The zip-code centroids with missing population data are
+dropped from the training data.
+
+\paragraph{Expected Energy Usage} The assumption is made that energy usage by
+nearby population centers is correlated to their nearest electric-service providers.
+Using the population-centroids of each zip-code, the nearest electric-service provider
+is associated with each population center. The nominal energy usage of each population
+center is then encoded as a sine function of the month of observation to differentiate
+between the seasonal energy usage patterns. The \texttt{SUMMR\_PEAK} and \texttt{WINTR\_PEAK}
+values are used as the amplitudes of the wave functions for the respective seasons.
+
+\paragraph{Distance from Population Centers} Using the Haversine formula, the 
+great circle distance between the nearest zip-code population centroid and the
+observation site is calculated and included as a feature. Since the radiance from 
+light-sources are known to decay with distance, this distance is encoded as 
+its inverse square. Since this predictor is known to have a direct physical relationship
+with the target variable, it is not mean-centered or scaled.
+
+\subsection{Model Choice}
+\paragraph{} TO-DO. Probably MARS? Model-stacking with linear regression, SVM, 
+GAM, GLM, and whatever else is within computational achievability.
+
+\subsection{Validation Approach}
+\paragraph{} Unless significant computational throughput problems are encountered,
+10-fold cross-validation will be used for model training and evaluation.
 
 \section{Results}
 
@@ -238,8 +274,10 @@ electrical service providers.
 %   feature importance, hyperparameter tuning visualizations, confusion matrices, etc.)
 % – Key findings of analysis! Tie this back to your models, assumptions, problem description, etc.
 \subsection{Model Results and Performance}
+\paragraph{} TO-DO
 
 \subsection{Key Findings}
+\paragraph{} TO-DO
 
 \section{Conclusion}
 
@@ -251,14 +289,12 @@ electrical service providers.
 %   to improve their profits next quarter”, such a model is not very good, so they probably can’t do
 %   that!
 
-\paragraph{Summary}
+\paragraph{Summary} TO-DO
+\paragraph{Key Insights} TO-DO
+\paragraph{Final Recommendations and Impact} TO-DO
 
-\paragraph{Key Insights}
-
-\paragraph{Final Recommendations and Impact}
 
 \pagebreak
-
 \printbibliography
 
 \end{document}

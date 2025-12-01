@@ -25,6 +25,17 @@ zip.pop.raw <- zip.pop.raw %>%
   mutate(across(c(Geography), as.factor)) %>%
   mutate(across(c(ZIP_Code), as.numeric))
 
+gan.raw <- read.csv("data/GaN_nsb-atmos_data.csv",
+                    header = TRUE, stringsAsFactors = TRUE)
+gan.prep <- gan.raw %>%
+  mutate(Timestamp_dt = ymd_hms(Timestamp_UTC),
+         Year = year(Timestamp_dt),
+         Month = month(Timestamp_dt),
+         Day = day(Timestamp_dt),
+         Hour = hour(Timestamp_dt),
+         Minute = minute(Timestamp_dt),
+         Second = second(Timestamp_dt)
+  )
 # Data Quality Report
 #####################
 
@@ -114,6 +125,13 @@ DQreport <- function(data) {
   
 }
 
+# Data Quality
+##############
+gan.DQR <- DQreport(gan.prep)
+kable(elec.service.DQR[[1]], "latex") %>%
+  save_kable( "data/gan-DQR-factor.pdf")
+kable(elec.service.DQR[[2]], "latex") %>%
+  save_kable( "data/gan-DQR-numeric.pdf")
 
 elec.service.DQR <- DQreport(electric.service.raw)
 kable(elec.service.DQR[[1]], "latex") %>%
@@ -138,6 +156,15 @@ kable(zip.pop.DQR[[2]], "latex") %>%
   save_kable( "data/zip-pop-DQR-numeric.pdf")
 #View(zip.pop.DQR[[1]])
 #View(zip.pop.DQR[[2]])
+
+# DATA EXPORT
+#############
+
+gan.data <- gan.prep %>%
+  select(-c(Minute, Second)) %>%
+  filter(!is.na(nsb)) %>%
+  mutate(across(Timestamp_UTC, as.character.POSIXt))
+saveRDS(gan.data, file = "data/gan-data.rds")
 
 zip.data <- zip.centroids.raw %>%
   left_join(zip.pop.raw, by = c("STD_ZIP5" = "ZIP_Code")) %>%
