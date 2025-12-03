@@ -107,6 +107,92 @@ trainSummary <- DQreport(atmos) # return (list(numericSummaryFinal, categoricSum
 trainSummary[1] %>% kable()
 trainSummary[2] %>% kable()
 
+atmos$Timestamp_UTC <- as_datetime(atmos$Timestamp_UTC, tz = "UTC")
 
-saveRDS(atmos, file = 'C:\\Users\\brook\\Documents\\GitHub\\ou-dsa-5103-project\\src\\data\\nsb-era5-data.rds')
+library(VIM)  #package for "Visualization and Imputation of Missing Values"
+
+# can use VIM's "aggr" function to also get overall information on missing
+a<-aggr(atmos)
+summary(a)
+
+# use VIM function "marginplot" to get a scatter plot that includes information on missing values
+marginplot(atmos[c('Timestamp_UTC','nsb')], col = c("blue", "red", "orange"))
+
+library(lubridate)
+
+hourly_summary_floor <- atmos %>%
+  mutate(hour_start = hour(Timestamp_UTC)) %>%
+  group_by(hour_start) %>%
+  summarise(
+    n_observations = n(),
+    n_missing = sum(is.na(nsb))
+  ) %>%
+  ungroup()
+
+
+ggplot(hourly_summary_floor, aes(x = hour_start, y = n_missing)) +
+  geom_line() +
+  geom_point() +
+  labs(
+    title = "Average Measurement by Hour",
+    x = "Hour of Day",
+    y = "Average Measurement"
+  ) +
+  theme_minimal()
+
+barplot(data=hourly_summary_floor, n_missing ~ hour_start,
+        main = 'NSB Missing Values',
+        xlab = "Hour of Day (UTC)",
+        ylab = "Missing Value Count")
+
+
+
+
+# combining datasets
+
+data <- readRDS('C:\\Users\\brook\\Documents\\GitHub\\ou-dsa-5103-project\\src\\data\\nsb-era5-data.rds')
+elec <- readRDS('C:\\Users\\brook\\Documents\\GitHub\\ou-dsa-5103-project\\src\\data\\elec-service-data.rds')
+elec$ID <- as.numeric(elec$ID)
+zip <- readRDS('C:\\Users\\brook\\Documents\\GitHub\\ou-dsa-5103-project\\src\\data\\zip-data.rds')
+zip$OBJECTID <- as.numeric(zip$OBJECTID)
+
+sites <- unique(data$site)
+
+for (i in levels(sites)) {
+  
+  data_i <- data[data$site==i,]
+  lat_i <- first(data_i$lat)
+  lon_i <- first(data_i$lon)
+  
+  # find closest zip code to nsb monitoring site
+  find_zip <- data.frame(id = zip$OBJECTID, diff_lat = abs(zip$LAT - lat_i), diff_lon = abs(zip$LON - lon_i))
+  find_zip$dist <- sqrt(find_zip$diff_lat**2 + find_zip$diff_lon**2)
+  zip_id <- first(find_zip[order(find_zip$dist),])
+  
+  # find closest electrcity service provider to nsb monitoring site
+  find_elec <- data.frame(id = elec$ID, diff_lat = abs(elec$LAT - lat_i), diff_lon = abs(elec$LON - lon_i))
+  find_elec$dist <- sqrt(find_elec$diff_lat**2 + find_elec$diff_lon**2)
+  elec_id <- first(find_elec[order(find_elec$dist),])
+  
+  data[data$site==i,'zip_pop'] <- zip[zip$OBJECTID==zip_id$id,'Population']
+  data[data$site==i,'zip_code'] <- zip[zip$OBJECTID==zip_id$id,'STD_ZIP5']
+  data[data$site==i,'zip_dist'] <- zip_id$dist
+  
+  data[data$site==i,'elec_cust'] <- elec[elec$ID==elec_id$id,'CUSTOMERS']
+  data[data$site==i,'elec_summer_peak'] <- elec[elec$ID==elec_id$id,'SUMMR_PEAK']
+  data[data$site==i,'elec_winter_peak'] <- elec[elec$ID==elec_id$id,'WINTR_PEAK']
+  data[data$site==i,'elec_total_mwh'] <- elec[elec$ID==elec_id$id,'TOTAL_MWH']
+  data[data$site==i,'elec_dist'] <- elec_id$dist
+  
+}
+
+
+saveRDS(data, file = 'C:\\Users\\brook\\Documents\\GitHub\\ou-dsa-5103-project\\src\\data\\combined-dataset.rds')
+
+
+
+
+
+
+
 
