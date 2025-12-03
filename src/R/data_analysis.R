@@ -9,11 +9,8 @@ library(doParallel)
 
 ################################# import data ##################################
 
-sites <- list.files('C:\\R\\Project\\GaN-MN_sites\\',full.names=TRUE)
-sites
+atmos <- read.csv('C:\\Users\\brook\\Documents\\GitHub\\ou-dsa-5103-project\\src\\data\\GaN_nsb-atmos_data.csv',header=TRUE,stringsAsFactors=TRUE)
 
-#atmos <- read.csv('C:\\Users\\brook\\Documents\\GitHub\\ou-dsa-5103-project\\src\\data\\GaN_nsb-atmos_data.csv',header=TRUE,stringsAsFactors=TRUE)
-atmos <- read.csv(sites[5],header=TRUE,stringsAsFactors=TRUE)
 
 ################################# data analysis report #########################
 
@@ -104,10 +101,12 @@ DQreport <- function(data) {
   
 }
 
-#atmos <- read.csv('C:\\Users\\brook\\Documents\\GitHub\\ou-dsa-5103-project\\src\\data\\GaN_nsb-atmos_data.csv',header=TRUE,stringsAsFactors=TRUE)
-atmos <- read.csv(sites[11],header=TRUE,stringsAsFactors=TRUE)
 
 # Reports for training data
 trainSummary <- DQreport(atmos) # return (list(numericSummaryFinal, categoricSummaryFinal))
 trainSummary[1] %>% kable()
 trainSummary[2] %>% kable()
+
+
+saveRDS(atmos, file = 'C:\\Users\\brook\\Documents\\GitHub\\ou-dsa-5103-project\\src\\data\\nsb-era5-data.rds')
+
