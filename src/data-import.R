@@ -1,5 +1,7 @@
 library(tidyverse)
 library(knitr)
+library(kableExtra)
+library(webshot2)
 
 # Data import
 #############
@@ -23,6 +25,17 @@ zip.pop.raw <- zip.pop.raw %>%
   mutate(across(c(Geography), as.factor)) %>%
   mutate(across(c(ZIP_Code), as.numeric))
 
+gan.raw <- read.csv("data/GaN_nsb-atmos_data.csv",
+                    header = TRUE, stringsAsFactors = TRUE)
+gan.prep <- gan.raw %>%
+  mutate(Timestamp_dt = ymd_hms(Timestamp_UTC),
+         Year = year(Timestamp_dt),
+         Month = month(Timestamp_dt),
+         Day = day(Timestamp_dt),
+         Hour = hour(Timestamp_dt),
+         Minute = minute(Timestamp_dt),
+         Second = second(Timestamp_dt)
+  )
 # Data Quality Report
 #####################
 
@@ -112,25 +125,62 @@ DQreport <- function(data) {
   
 }
 
+# Data Quality
+##############
+gan.DQR <- DQreport(gan.prep)
+kable(elec.service.DQR[[1]], "latex") %>%
+  save_kable( "data/gan-DQR-factor.pdf")
+kable(elec.service.DQR[[2]], "latex") %>%
+  save_kable( "data/gan-DQR-numeric.pdf")
 
 elec.service.DQR <- DQreport(electric.service.raw)
-View(elec.service.DQR[[1]])
-View(elec.service.DQR[[2]])
+kable(elec.service.DQR[[1]], "latex") %>%
+  save_kable( "data/elec-service-DQR-factor.pdf")
+kable(elec.service.DQR[[2]], "latex") %>%
+  save_kable( "data/elec-service-DQR-numeric.pdf")
+#View(elec.service.DQR[[1]])
+#View(elec.service.DQR[[2]])
 
 zip.centroids.DQR <- DQreport(zip.centroids.raw)
-View(zip.centroids.DQR[[1]])
-View(zip.centroids.DQR[[2]])
+kable(zip.centroids.DQR[[1]], "latex") %>%
+  save_kable( "data/zip-centroids-DQR-factor.pdf")
+kable(zip.centroids.DQR[[2]], "latex") %>%
+  save_kable( "data/zip-centroids-DQR-numeric.pdf")
+#View(zip.centroids.DQR[[1]])
+#View(zip.centroids.DQR[[2]])
 
 zip.pop.DQR <- DQreport(zip.pop.raw)
-View(zip.pop.DQR[[1]])
-View(zip.pop.DQR[[2]])
+kable(zip.pop.DQR[[1]], "latex") %>%
+  save_kable( "data/zip-pop-DQR-factor.pdf")
+kable(zip.pop.DQR[[2]], "latex") %>%
+  save_kable( "data/zip-pop-DQR-numeric.pdf")
+#View(zip.pop.DQR[[1]])
+#View(zip.pop.DQR[[2]])
+
+# DATA EXPORT
+#############
+
+gan.data <- gan.prep %>%
+  select(-c(Minute, Second)) %>%
+  filter(!is.na(nsb)) %>%
+  mutate(across(Timestamp_UTC, as.character.POSIXt))
+saveRDS(gan.data, file = "data/gan-data.rds")
 
 zip.data <- zip.centroids.raw %>%
-  left_join(zip.pop.raw, by = c("STD_ZIP5" = "ZIP_Code"))
+  left_join(zip.pop.raw, by = c("STD_ZIP5" = "ZIP_Code")) %>%
+  filter(!is.na(Population))
+zip.data.DQR <- DQreport(zip.data)
+#View(zip.data.DQR[[1]])
+#View(zip.data.DQR[[2]])
 saveRDS(zip.data, file = "data/zip-data.rds")
 #test <- readRDS("data/zip-data.rds")
 
 elec.service.data <- electric.service.raw %>%
-  left_join(zip.centroids.raw, by = c("ZIP" = "STD_ZIP5"))
+  left_join(zip.centroids.raw, by = c("ZIP" = "STD_ZIP5")) %>%
+  filter(!is.na(ZIP)) %>%
+  filter(!is.na(LATITUDE))
+elec.service.data.DQR <- DQreport(elec.service.data)
+#View(elec.service.data.DQR[[1]])
+#View(elec.service.data.DQR[[2]])
 saveRDS(elec.service.data, file = "data/elec-service-data.rds")
 #test <- readRDS("data/elec-service-data.rds")
