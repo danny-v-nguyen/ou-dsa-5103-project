@@ -107,6 +107,9 @@ trainSummary <- DQreport(atmos) # return (list(numericSummaryFinal, categoricSum
 trainSummary[1] %>% kable()
 trainSummary[2] %>% kable()
 
+
+################################# oither stuff #########################
+
 atmos$Timestamp_UTC <- as_datetime(atmos$Timestamp_UTC, tz = "UTC")
 
 library(VIM)  #package for "Visualization and Imputation of Missing Values"
@@ -188,6 +191,95 @@ for (i in levels(sites)) {
 
 
 saveRDS(data, file = 'C:\\Users\\brook\\Documents\\GitHub\\ou-dsa-5103-project\\src\\data\\combined-dataset.rds')
+
+vapor_pressure <- function(t) {
+  # if t = d2m/dew point temperature ( K ) -> actual vapor pressure
+  # if t = t2m/air temperature ( K ) -> saturation vapor pressure
+  
+  # convert to celcius
+  t <- t - 273.15 
+  
+  e <- 0.6113 * 10**((7.5*t)/(237.3+t)) # kiloPascals
+  
+  return (e) 
+}
+
+mixing_ratio <- function(e,P) {
+  # e = vapor pressure ( kPa )
+  # P = atmospheric pressure ( Pa )
+  
+  # convert Pa to kPa
+  P <- P/1000
+  
+  r <- (622*e)/(P-e) # grams per kilogram
+  
+  return (r) 
+}
+
+max_cc <- function(hcc,mcc,lcc) {
+  
+  return (max(hcc,mcc,lcc))
+  
+}
+
+data <- readRDS('C:\\Users\\brook\\Documents\\GitHub\\ou-dsa-5103-project\\src\\data\\combined-dataset.rds')
+data <- data %>% dplyr::filter(nsb>0 & nsb <23) # accurate readings above 22 are highly unlikely 
+
+# recode missing values from electricity dataset
+data <- data %>% 
+  dplyr::mutate(across(c('elec_cust','elec_summer_peak','elec_winter_peak','elec_total_mwh'), ~na_if(., -999999)))
+
+data$ea <- mapply(vapor_pressure, t=data$d2m)
+data$es <- mapply(vapor_pressure, t=data$t2m)
+data$rh <- (data$ea/data$es)*100 # can maybe replace using both t2m and d2m since they are highly correlated
+data$r  <- mapply(mixing_ratio, e=data$ea, P=data$sp) # can maybe replace sp since sp is VERY reliant on site location
+data$cc <- mapply(max_cc, hcc=data$hcc, mcc=data$mcc, lcc=data$lcc)
+
+#data$t2m.elec_mwh <- data$t2m * data$elec_total_mwh
+#data$t2m.zip_pop <- data$t2m * log(data$zip_pop)
+
+saveRDS(data, file = 'C:\\Users\\brook\\Documents\\GitHub\\ou-dsa-5103-project\\src\\data\\combined-dataset.rds')
+
+
+#data.frame(data$nsb, data$site, dataScaled$sp.elev)
+#qplot(data=data.frame(data$nsb, data$site, dataScaled$sp.elev), x=data.nsb, y=dataScaled.sp.elev, color=factor(data.site))
+
+# transform data to make more normal
+i <- 'r'
+
+hist(data[[i]])
+b <- boxcox(lm(data[[i]]~1))
+lambda <- b$x[which.max(b$y)]
+d[,i] <- (data[[i]] ^ lambda - 1) / lambda
+hist(d[[i]])
+
+qplot(data=d, x=nsb, y=ea, color=factor(site))
+
+
+install.packages("devtools")
+library(devtools)
+
+#install moonlit library from github repo
+install_github("msmielak/moonlit")
+
+#load the moonlit library
+library(moonlit)
+
+data <- readRDS('C:\\Users\\brook\\Documents\\GitHub\\ou-dsa-5103-project\\src\\data\\combined-dataset.rds')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
