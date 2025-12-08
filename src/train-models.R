@@ -61,8 +61,8 @@ fit.glm <- train(nsb ~ .,
 fit.glm
 saveRDS(fit.glm, "glm-model.rds")
 
-mars.tune <- expand.grid(nprune = c(29,30,33),
-                         degree = c(2,3))
+mars.tune <- expand.grid(nprune = c(33,35,40),
+                         degree = c(3,4))
 fit.mars <- train(nsb ~ .,
                   data = data.train,
                   method = "earth",
