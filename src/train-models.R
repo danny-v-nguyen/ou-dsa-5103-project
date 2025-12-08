@@ -1,5 +1,8 @@
 library(caret)
 library(tidyverse)
+library(earth)
+library(doParallel)
+library(ggbiplot)
 
 # Import data
 data <- readRDS("data/combined-dataset.rds")
@@ -10,10 +13,10 @@ data.prep <- data %>%
     datetime = ymd_hms(Timestamp_UTC),
     
     # Get month and hour
-    month_cos = ifelse(is.na(datetime), 6, cos((month(datetime)-6)*(pi/6))), # Assume peak brightness at June
+    summer_cos = ifelse(is.na(datetime), 6, cos((month(datetime)-6)*(pi/6))), # Assume peak brightness at June
     noon_cos = ifelse(is.na(datetime), 0, cos((hour(datetime)-12)*(pi/6)))    # Assume peak brightness at noon
   ) %>%
-  select(-datetime) %>%
+  select(-c(datetime,Timestamp_UTC,site,zip_code, lat, lon)) %>% # Drop timestamps and site specific data
   mutate(
     # Mean imputing missing elec_summer_peak and elec_winter_peak
     across(
@@ -22,3 +25,68 @@ data.prep <- data %>%
     )
   )
 
+# Split the training and testing data (75%, 25%) respectively
+set.seed(2025125103) 
+test_index <- createDataPartition(
+  y = data.prep$nsb, 
+  p = 0.25, # 25% for the test set
+  list = FALSE
+)
+
+# Separate the datasets
+data.train <- data.prep[-test_index, ]
+data.test <- data.prep[test_index, ]
+
+saveRDS(data.prep, "data/data-prep.rds")
+saveRDS(data.train, "data/data-train.rds")
+saveRDS(data.test, "data/data-test.rds")
+
+# Desperate to make things go faster
+num_cores <- detectCores() - 1
+cl <- makePSOCKcluster(num_cores)
+registerDoParallel(cl)
+
+ctrl <- trainControl(method = "repeatedcv",
+                     number = 10,
+                     repeats = 5)
+
+glm.tune <- expand.grid(alpha = c(0.1, 0.55, 1.0),
+                        lambda = exp(seq(log(0.0001), log(0.005), length.out = 3)))
+fit.glm <- train(nsb ~ .,
+                 data = data.train,
+                 method = "glmnet",
+                 tuneGrid = glm.tune,
+                 trControl = ctrl,
+                 preProcess = c("center","scale"))
+fit.glm
+saveRDS(fit.glm, "glm-model.rds")
+
+mars.tune <- expand.grid(nprune = c(29,30,33),
+                         degree = c(2,3))
+fit.mars <- train(nsb ~ .,
+                  data = data.train,
+                  method = "earth",
+                  tuneGrid = mars.tune,
+                  trControl = ctrl,
+                  preProcess = c("center", "scale"))
+fit.mars
+saveRDS(fit.mars, "mars-model.rds")
+
+###############
+# Stop parallel
+stopCluster(cl)
+registerDoSEQ() 
+###############
+
+p <- predict(fit.mars, data.test)
+caret::postResample(p,data.test$nsb)
+
+pca_index <- createDataPartition(
+  y = data.prep$nsb, 
+  p = 0.05,
+  list = FALSE
+)
+data.pca <-data.prep[pca_index, ]
+pca <- prcomp(data.pca %>% select(-nsb), center = TRUE, scale = TRUE)
+ggbiplot(pca,
+         groups = data.pca$nsb)
