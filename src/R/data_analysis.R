@@ -155,11 +155,21 @@ barplot(data=hourly_summary_floor, n_missing ~ hour_start,
 
 data <- readRDS('C:\\Users\\brook\\Documents\\GitHub\\ou-dsa-5103-project\\src\\data\\nsb-era5-data.rds')
 elec <- readRDS('C:\\Users\\brook\\Documents\\GitHub\\ou-dsa-5103-project\\src\\data\\elec-service-data.rds')
-elec$ID <- as.numeric(elec$ID)
 zip <- readRDS('C:\\Users\\brook\\Documents\\GitHub\\ou-dsa-5103-project\\src\\data\\zip-data.rds')
+
+# Danny's linux paths
+#data <- readRDS('data/nsb-era5-data.rds')
+#elec <- readRDS('data/elec-service-data.rds')
+#zip <- readRDS('data/zip-data.rds')
+
+elec$ID <- as.numeric(elec$ID)
+
 zip$OBJECTID <- as.numeric(zip$OBJECTID)
 
 sites <- unique(data$site)
+
+# Need to use great-circle distances for lat/lon
+library(geosphere) #distHaversine
 
 for (i in levels(sites)) {
   
@@ -167,30 +177,34 @@ for (i in levels(sites)) {
   lat_i <- first(data_i$lat)
   lon_i <- first(data_i$lon)
   
+  site_coord <- c(lon_i,lat_i)
+  
   # find closest zip code to nsb monitoring site
-  find_zip <- data.frame(id = zip$OBJECTID, diff_lat = abs(zip$LAT - lat_i), diff_lon = abs(zip$LON - lon_i))
-  find_zip$dist <- sqrt(find_zip$diff_lat**2 + find_zip$diff_lon**2)
-  zip_id <- first(find_zip[order(find_zip$dist),])
+  zip_coords <- cbind(zip$LON, zip$LAT)
+  distance_matrix <- distm(x = site_coord, y = zip_coords, fun = distHaversine)
+  min_dist_zip <- min(distance_matrix)
+  zip_id <- which.min(distance_matrix)
   
   # find closest electrcity service provider to nsb monitoring site
-  find_elec <- data.frame(id = elec$ID, diff_lat = abs(elec$LAT - lat_i), diff_lon = abs(elec$LON - lon_i))
-  find_elec$dist <- sqrt(find_elec$diff_lat**2 + find_elec$diff_lon**2)
-  elec_id <- first(find_elec[order(find_elec$dist),])
+  elec_coords <- cbind(elec$LON, elec$LAT)
+  distance_matrix <- distm(x = site_coord, y = elec_coords, fun = distHaversine)
+  min_dist_elec <- min(distance_matrix)
+  elec_id <- which.min(distance_matrix)
   
-  data[data$site==i,'zip_pop'] <- zip[zip$OBJECTID==zip_id$id,'Population']
-  data[data$site==i,'zip_code'] <- zip[zip$OBJECTID==zip_id$id,'STD_ZIP5']
-  data[data$site==i,'zip_dist'] <- zip_id$dist
+  data[data$site==i,'zip_pop'] <- zip[zip_id,'Population']
+  data[data$site==i,'zip_code'] <- zip[zip_id,'STD_ZIP5']
+  data[data$site==i,'zip_dist_sq'] <- 1/min_dist_zip^2
   
-  data[data$site==i,'elec_cust'] <- elec[elec$ID==elec_id$id,'CUSTOMERS']
-  data[data$site==i,'elec_summer_peak'] <- elec[elec$ID==elec_id$id,'SUMMR_PEAK']
-  data[data$site==i,'elec_winter_peak'] <- elec[elec$ID==elec_id$id,'WINTR_PEAK']
-  data[data$site==i,'elec_total_mwh'] <- elec[elec$ID==elec_id$id,'TOTAL_MWH']
-  data[data$site==i,'elec_dist'] <- elec_id$dist
+  data[data$site==i,'elec_cust'] <- elec[elec_id,'CUSTOMERS']
+  data[data$site==i,'elec_summer_peak'] <- elec[elec_id,'SUMMR_PEAK']
+  data[data$site==i,'elec_winter_peak'] <- elec[elec_id,'WINTR_PEAK']
+  data[data$site==i,'elec_total_mwh'] <- elec[elec_id,'TOTAL_MWH']
+  data[data$site==i,'elec_dist_sq'] <- 1/min_dist_elec^2
   
 }
 
-
 saveRDS(data, file = 'C:\\Users\\brook\\Documents\\GitHub\\ou-dsa-5103-project\\src\\data\\combined-dataset.rds')
+#saveRDS(data, file = 'data/combined-dataset.rds')
 
 vapor_pressure <- function(t) {
   # if t = d2m/dew point temperature ( K ) -> actual vapor pressure
@@ -222,7 +236,7 @@ max_cc <- function(hcc,mcc,lcc) {
   
 }
 
-data <- readRDS('C:\\Users\\brook\\Documents\\GitHub\\ou-dsa-5103-project\\src\\data\\combined-dataset.rds')
+#data <- readRDS('C:\\Users\\brook\\Documents\\GitHub\\ou-dsa-5103-project\\src\\data\\combined-dataset.rds')
 data <- data %>% dplyr::filter(nsb>0 & nsb <23) # accurate readings above 22 are highly unlikely 
 
 # recode missing values from electricity dataset
@@ -239,7 +253,7 @@ data$cc <- mapply(max_cc, hcc=data$hcc, mcc=data$mcc, lcc=data$lcc)
 #data$t2m.zip_pop <- data$t2m * log(data$zip_pop)
 
 saveRDS(data, file = 'C:\\Users\\brook\\Documents\\GitHub\\ou-dsa-5103-project\\src\\data\\combined-dataset.rds')
-
+#saveRDS(data, file = 'data/combined-dataset.rds')
 
 #data.frame(data$nsb, data$site, dataScaled$sp.elev)
 #qplot(data=data.frame(data$nsb, data$site, dataScaled$sp.elev), x=data.nsb, y=dataScaled.sp.elev, color=factor(data.site))
