@@ -104,11 +104,22 @@ to be a significant training obstacle, likely to skew the models locally to thos
 geographic locations. Additionally, the association of zip-codes to the
 nearest geographic electric-service provider is a rough approximation that may not 
 accurately reflect the actual service-provider for a given area, most notably for
-high population density zones that are serviced by multiple providers.
+high population density zones that are serviced by multiple providers. Population
+data is also limited to the static values collected during the 2020 US Census. 
+Time-based population estimation methods were not used.
 
-\paragraph{Summary of Findings} TO-DO
+\paragraph{Summary of Findings} The final trained MARS model made predictions 
+against a 25\% data test-holdout set with a 5-repeats 10-fold CV performance of
+$RMSE=0.7957$, $R^2 = 0.9278$, and $MAE = 0.5268$. Concerningly, the final model 
+pruned nearly all meteorological variables, placing emphasis nearly entirely on 
+relative sun/moon positions, time of year/day, and locality to population/electrical 
+centers.
 
-\paragraph{Recommendations} TO-DO
+\paragraph{Recommendations} The model predictions must be validated against an 
+additional site with different local meteorological conditions. If the model stands
+up to generalization, then further refinement can be done focusing within tuning
+the model's predictions on the low-end of night sky brightness where the most
+outliers are present. 
 
 \pagebreak
 
@@ -239,11 +250,12 @@ the direction of PC1.
 
 \begin{figure}[h!]
     \centering
-    \includegraphics[width=\textwidth]{pca.pdf}
+    \includegraphics[width=13cm]{pca.pdf}
     \caption{PCA Bi-Plot w/ Night-Sky Brightness Gradient}
     \label{PCA}
 \end{figure}
 
+\pagebreak
 \section{Methodology}
 
 % – Feature selection, engineering, missing value imputation, outlier processing, etc.
@@ -309,6 +321,7 @@ minimum magnitude of 1.
 5 repeats. The full dataset was split 75/25 between the training and testing 
 holdout data.
 
+\pagebreak
 \section{Results}
 
 % – Model results and performance summary
@@ -433,6 +446,7 @@ measure the night sky from off-nominal locations. Combined with a suspiciously
 high $R^2$, we believe that the model is over-tuned to the specific environments 
 of the thirteen sites.
 
+\pagebreak
 \section{Conclusion}
 
 % – Summary of problem, approach, findings – yes, this is a bit redundant, but this is your chance to
