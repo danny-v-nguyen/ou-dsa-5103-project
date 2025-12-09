@@ -441,7 +441,16 @@ of the 5 sites.
 %   to improve their profits next quarter”, such a model is not very good, so they probably can’t do
 %   that!
 
-\paragraph{Summary} TO-DO
+\paragraph{Summary} We set out to predict the night sky brightness for a given
+location based on detailed local weather data, proximity to nearby population centers,
+local electricity usage, and time of day/year. Using supervised learning on the 
+combined datasets between GaN, ERA5, US-DOE, and the US Census Bureau; a MARS model
+was trained to perform regression analysis through the \texttt{earth} R-package
+to yield a final model with predictive night-sky brightness magnitudes with
+\texttt{RMSE}$=0.7975$. Combined with an \textbf{R}$^2 = 0.9278$, the model is 
+either over-tuned for the 5 site restriction of the dataset, or it is a fantastically
+accurate model.
+
 \paragraph{Key Insights} TO-DO
 \paragraph{Final Recommendations and Impact} TO-DO
 
