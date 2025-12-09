@@ -472,8 +472,22 @@ was the \texttt{es} vapor pressure measurement for the site.
 across the years between all 5 sites was baked into the model hinge function 
 coefficients.
 
-\paragraph{Final Recommendations and Impact} Until the 
+\paragraph{Final Recommendations and Impact} While acknowledging the constraints 
+of the training data, the model's performance on the available set is promising. 
+If the model's generalization error is found to be close to its training performance, 
+it offers significant practical utility:
 
+\begin{itemize}[label=--]
+    \item \textbf{Impact:} The model provides hobbyist stargazers with a tool to 
+    plan for optimal conditions and offers professional astronomers a data-driven 
+    aid in the selection or evaluation of potential new observatory sites.
+    \item \textbf{Caution:} The highly localized nature of the training data 
+    necessitates caution. The strong correlation with static site characteristics 
+    (2020 Census populations, local energy providers) means the model's high 
+    $R^2$ may not generalize well to novel locations outside the established 
+    parameters of the five training sites. Further validation on independent 
+    site data is imperative to determine the model's true scope and utility.
+\end{itemize}
 
 \pagebreak
 \printbibliography
