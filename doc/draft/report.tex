@@ -215,9 +215,8 @@ This dataset denotes ZIP Code centroid locations weighted by population. \\
 
 \paragraph{Night-Sky Brightness} The Globe at Night dataset only contains thirteen
 sites and night sky brightness readings are relatively sparse ($\sim$63\% missing); 
-however most of the missing measurements are from the daylight hours. The sites
-that are inside the US are further limited to 5. Additionally the minimum time 
-resolution of measurements is to the UTC hour instead of the local hour.
+however most of the missing measurements are from the daylight hours. Additionally 
+the minimum time resolution of measurements is to the UTC hour instead of the local hour.
 
 \paragraph{Meteorological Data} Given that ERA5 is a reanalysis dataset, there 
 are no missing values that must be accommodated.
@@ -426,13 +425,13 @@ most of the weather variables were pruned away. The leftover variables largely
 only relate to the time of year, time of day, and locality to population/electricity
 usage.
 
-\paragraph{} However, because of the initial limitation of the dataset to the 5
+\paragraph{} However, because of the initial limitation of the dataset to the thirteen
 sites that participate in the GaN project in the USA; it is likely due to the
 weather effects specific to these sites being averaged away in the tuned coefficients.
 Unfortunately, to verify this would require purchasing the SQM-LE research tool to 
 measure the night sky from off-nominal locations. Combined with a suspiciously 
 high $R^2$, we believe that the model is over-tuned to the specific environments 
-of the 5 sites.
+of the thirteen sites.
 
 \section{Conclusion}
 
@@ -451,13 +450,13 @@ combined datasets between GaN, ERA5, US-DOE, and the US Census Bureau; a MARS mo
 was trained to perform regression analysis through the \texttt{earth} R-package
 to yield a final model with predictive night-sky brightness magnitudes with
 \texttt{RMSE}$=0.7975$. Combined with an \textbf{R}$^2 = 0.9278$, the model is 
-either over-tuned for the 5 site restriction of the dataset, or it is a fantastically
+either over-tuned for the thirteen site restriction of the dataset, or it is a fantastically
 accurate model.
 
 \paragraph{Key Insights} It is important to reiterate that the training dataset
-for the night sky brightness was limited to the 5 US based sites that report the 
+for the night sky brightness was limited to the thirteen US based sites that report the 
 data. The distances, populations, and electrical information are static with only
-5 possible values corresponding to their respective sites. Whether or not this
+thirteen possible values corresponding to their respective sites. Whether or not this
 extends generally to any location remains to be seen. 
 
 \paragraph{} With this restriction in mind,
@@ -469,7 +468,7 @@ value). Somewhat mysteriously, the only weather predictor that survived the prun
 was the \texttt{es} vapor pressure measurement for the site. 
 
 \paragraph{}The primary suspect is that the average of the weather effects 
-across the years between all 5 sites was baked into the model hinge function 
+across the years between all thirteen sites was baked into the model hinge function 
 coefficients.
 
 \paragraph{Final Recommendations and Impact} While acknowledging the constraints 
@@ -485,7 +484,7 @@ it offers significant practical utility:
     necessitates caution. The strong correlation with static site characteristics 
     (2020 Census populations, local energy providers) means the model's high 
     $R^2$ may not generalize well to novel locations outside the established 
-    parameters of the five training sites. Further validation on independent 
+    parameters of the thirteen training sites. Further validation on independent 
     site data is imperative to determine the model's true scope and utility.
 \end{itemize}
 
