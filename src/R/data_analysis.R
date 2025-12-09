@@ -274,7 +274,7 @@ install.packages("devtools")
 library(devtools)
 
 #install moonlit library from github repo
-install_github("msmielak/moonlit")
+install_github("msmielak/moonlit",force=TRUE)
 
 #load the moonlit library
 library(moonlit)
@@ -282,15 +282,31 @@ library(moonlit)
 data <- readRDS('C:\\Users\\brook\\Documents\\GitHub\\ou-dsa-5103-project\\src\\data\\combined-dataset.rds')
 
 
+moon_phase <- function(lat,lon,datetime,elev) {
+  
+  elev.m <- elev/3.28084 # convert feet to meters
+  
+  # get extinction coefficient estimate 
+  if (elev.m<500) {
+    e = 0.28
+  } else if (elev.m<1000) {
+    e = 0.24
+  } else if (elev.m<2000) {
+    e = 0.21
+  } else {
+    e = 0.16
+  }
+  
+  moon <- calculateMoonlightIntensity(lat, lon, datetime, e)
+  
+  return(moon$moonPhase)
+  
+}
 
 
+data$moon_phase <- mapply(moon_phase, lat=data$lat, lon=data$lon, datetime=data$Timestamp_UTC, elev=data$elev)
 
-
-
-
-
-
-
+saveRDS(data, file = 'C:\\Users\\brook\\Documents\\GitHub\\ou-dsa-5103-project\\src\\data\\combined-dataset.rds')
 
 
 
