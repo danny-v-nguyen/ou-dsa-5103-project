@@ -14,7 +14,7 @@ data.prep <- data %>%
     datetime = ymd_hms(Timestamp_UTC),
     
     # Get month and hour
-    summer_cos = ifelse(is.na(datetime), cos(month(ymd(Timestamp_UTC))-6)*(pi/6), 
+    summer_cos = ifelse(is.na(datetime), cos((month(ymd(Timestamp_UTC))-6)*(pi/6)), 
                         cos((month(datetime)-6)*(pi/6))),                     # Assume peak brightness at June
     noon_cos = ifelse(is.na(datetime), -1, cos((hour(datetime)-12)*(pi/12)))  # Assume peak brightness at noon
   ) %>%

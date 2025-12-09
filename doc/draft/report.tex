@@ -224,6 +224,23 @@ missing zip-code data for approximately 58\% of electrical service providers.
 the centroids and population datasets. This is due to zip-codes that did not have
 population data in the 2020 census data.
 
+\paragraph{Principal Component Analysis} Omitting the night-sky brightness (NSB)
+from the variables compiled via the sources above (25 total), when performing a PCA 
+43.4\% of the data-set variance is contained within components 1 and 2. A random 
+sample of 5\% of the data was selected to plot against PC1 and PC2 for easier 
+viewing, with each point colored by a gradient for the associated NSB measured 
+value. This bi-plot is shown in Figure \ref{PCA}.
+
+A cursory inspection of the figure implies there may be a skew of low NSB nights
+(the points of interest) in the positive direction of PC1.
+
+\begin{figure}[h!tb]
+    \centering
+    \includegraphics[width=\textwidth]{pca.pdf}
+    \caption{PCA Bi-Plot w/ Night-Sky Brightness Gradient}
+    \label{PCA}
+\end{figure}
+
 \section{Methodology}
 
 % – Feature selection, engineering, missing value imputation, outlier processing, etc.
@@ -275,16 +292,16 @@ values are used as the amplitudes of the wave functions for the respective seaso
 great circle distance between the nearest zip-code population centroid and the
 observation site is calculated and included as a feature. Since the radiance from 
 light-sources are known to decay with distance, this distance is encoded as 
-its inverse square. Since this predictor is known to have a direct physical relationship
-with the target variable, it is not mean-centered or scaled.
+its inverse square.
 
 \subsection{Model Choice}
-\paragraph{} TO-DO. Probably MARS? Model-stacking with linear regression, SVM, 
-GAM, GLM, and whatever else is within computational achievability.
+\paragraph{} The \texttt{earth} R package is used for its implementation of the
+MARS regression model. The \texttt{caret} package is used to train and tune the
+hyper-parameters \texttt{nprune} and \texttt{degree} of the model.
 
 \subsection{Validation Approach}
-\paragraph{} Unless significant computational throughput problems are encountered,
-10-fold cross-validation will be used for model training and evaluation.
+\paragraph{} The training control used for the model training is 10-fold CV with
+5 repeats.
 
 \section{Results}
 
@@ -297,6 +314,20 @@ GAM, GLM, and whatever else is within computational achievability.
 % – Key findings of analysis! Tie this back to your models, assumptions, problem description, etc.
 \subsection{Model Results and Performance}
 \paragraph{} TO-DO
+
+\begin{figure}[h!tb]
+    \centering
+    \label{pred-v-actual}
+    \includegraphics[width=\textwidth]{predicted-v-actual.pdf}
+    \caption{Predicted v. Actual}
+\end{figure}
+
+\begin{figure}[h!tb]
+    \centering
+    \label{residuals}
+    \includegraphics[width=\textwidth]{residuals.pdf}
+    \caption{Predicted v. Residual}
+\end{figure}
 
 \subsection{Key Findings}
 \paragraph{} TO-DO
