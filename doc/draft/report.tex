@@ -183,7 +183,8 @@ and energy consumption data.
 extension of the original Globe at Night project, is a global night sky brightness 
 monitoring network using a commercially available meter (SQM-LE by Unihedron) for 
 long-term monitoring of the light pollution conditions in different places around 
-the world. \url{https://globeatnight.org/gan-mn/}
+the world.\\
+\url{https://globeatnight.org/gan-mn/}
 
 \paragraph{Meteorological Data} ERA5 provides hourly estimates for a large number 
 of atmospheric, ocean-wave and land-surface quantities. An uncertainty estimate 
@@ -193,28 +194,30 @@ estimates are closely related to the information content of the available observ
 system which has evolved considerably over time. They also indicate flow-dependent 
 sensitive areas. To facilitate many climate applications, monthly-mean averages 
 have been pre-calculated too, though monthly means are not available for the 
-ensemble mean and spread. \url{https://cds.climate.copernicus.eu/datasets/reanalysis-era5-single-levels?tab=overview}
+ensemble mean and spread. \\
+\url{https://cds.climate.copernicus.eu/datasets/reanalysis-era5-single-levels?tab=overview}
 
 \paragraph{Zip-Code Populations} A tabulation of the total population per zip code
-per the 2020 U.S. Census. \url{https://data.census.gov/table}
+per the 2020 U.S. Census. \\
+\url{https://data.census.gov/table}
 
 \paragraph{Electric Retail Service Territories} A table of electric power retail 
 service territories in the U.S. These are areas serviced by electric power utilities 
 responsible for the retail sale of electric power to local customers, whether 
-residential, industrial, or commercial. 
+residential, industrial, or commercial. \\
 \url{https://ornl.opendatasoft.com/explore/dataset/electric-retail-service-territories/information/}
 
 \paragraph{Population-Weighted Centroids for Zip Code Tabulation Areas (ZCTAs)} 
-This dataset denotes ZIP Code centroid locations weighted by population. 
+This dataset denotes ZIP Code centroid locations weighted by population. \\
 \url{https://hudgis-hud.opendata.arcgis.com/datasets/d032efff520b4bf0aa620a54a477c70e/about}
 
 \subsection{Exploratory Data Analysis}
 
 \paragraph{Night-Sky Brightness} The Globe at Night dataset only contains thirteen
 sites and night sky brightness readings are relatively sparse ($\sim$63\% missing); 
-however most of the missing measurements are from the daylight hours.
-Additionally the minimum time resolution of measurements is to the UTC hour instead
-of the local hour.
+however most of the missing measurements are from the daylight hours. The sites
+that are inside the US are further limited to 5. Additionally the minimum time 
+resolution of measurements is to the UTC hour instead of the local hour.
 
 \paragraph{Meteorological Data} Given that ERA5 is a reanalysis dataset, there 
 are no missing values that must be accommodated.
@@ -455,15 +458,19 @@ accurate model.
 for the night sky brightness was limited to the 5 US based sites that report the 
 data. The distances, populations, and electrical information are static with only
 5 possible values corresponding to their respective sites. Whether or not this
-extends generally to any location remains to be seen. With this restriction in mind,
+extends generally to any location remains to be seen. 
+
+\paragraph{} With this restriction in mind,
 We find that the model pruned away all variables except for ones relating to the
 season (e.g. \texttt{summer\_cos} is a feature engineered as the cosine of the month of
 a measure relative to June) or time of day (relative to noon), sun/moon position, 
 nearby population and distance, and local energy usage (specifically the summer peak
 value). Somewhat mysteriously, the only weather predictor that survived the pruning
-was the \texttt{es} vapor pressure measurement for the site. The primary suspect
-is that the average of the weather effects across the years between all 5 sites
-was baked into the model hinge function coefficients.
+was the \texttt{es} vapor pressure measurement for the site. 
+
+\paragraph{}The primary suspect is that the average of the weather effects 
+across the years between all 5 sites was baked into the model hinge function 
+coefficients.
 
 \paragraph{Final Recommendations and Impact} TO-DO
 
