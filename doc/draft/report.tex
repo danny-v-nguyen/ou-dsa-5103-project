@@ -4,6 +4,8 @@
 \usepackage{amsmath}            % math
 \usepackage{enumitem}           % change enumeration bullet styles
 \usepackage{graphicx}           % graphics
+\usepackage{caption}
+\usepackage{subcaption}
 \usepackage{xcolor}             % color
 \usepackage{hyperref}           % linkable references
 \hypersetup{colorlinks=true,
@@ -225,14 +227,14 @@ the centroids and population datasets. This is due to zip-codes that did not hav
 population data in the 2020 census data.
 
 \paragraph{Principal Component Analysis} Omitting the night-sky brightness (NSB)
-from the variables compiled via the sources above (25 total), when performing a PCA 
+from the variables compiled via the sources above (26 total), when performing a PCA 
 43.4\% of the data-set variance is contained within components 1 and 2. A random 
 sample of 5\% of the data was selected to plot against PC1 and PC2 for easier 
 viewing, with each point colored by a gradient for the associated NSB measured 
 value. This bi-plot is shown in Figure \ref{PCA}.
 
 A cursory inspection of the figure implies there may be a skew of low NSB nights
-(the points of interest) in the positive direction of PC1.
+(the points of interest) in the direction of PC1.
 
 \begin{figure}[h!tb]
     \centering
@@ -295,13 +297,16 @@ light-sources are known to decay with distance, this distance is encoded as
 its inverse square.
 
 \subsection{Model Choice}
-\paragraph{} The \texttt{earth} R package is used for its implementation of the
-MARS regression model. The \texttt{caret} package is used to train and tune the
-hyper-parameters \texttt{nprune} and \texttt{degree} of the model.
+\paragraph{} The \texttt{earth} R package was used for its implementation of the
+MARS regression model. The \texttt{caret} package was used to train and tune the
+hyper-parameters \texttt{nprune} and \texttt{degree} of the model. Post-processing 
+will be applied before the final prediction to clamp negative values up to the 
+minimum magnitude of 1.
 
 \subsection{Validation Approach}
-\paragraph{} The training control used for the model training is 10-fold CV with
-5 repeats.
+\paragraph{} The training control used for the model training was 10-fold CV with
+5 repeats. The full dataset was split 75/25 between the training and testing 
+holdout data.
 
 \section{Results}
 
@@ -313,21 +318,98 @@ hyper-parameters \texttt{nprune} and \texttt{degree} of the model.
 %   feature importance, hyperparameter tuning visualizations, confusion matrices, etc.)
 % – Key findings of analysis! Tie this back to your models, assumptions, problem description, etc.
 \subsection{Model Results and Performance}
-\paragraph{} TO-DO
 
-\begin{figure}[h!tb]
+\paragraph{Training Results} The model training results are shown in Table \ref{mars-summary}. 
+The hyper-parameters were tuned up to \texttt{degree}$=5$ and \texttt{nprune}$=45$, 
+with marginal improvements in $RMSE$ with each expansion of the tuning grid after
+\texttt{degree}$=4$ and \texttt{nprune} $ > 30$. More fine tuning of the 
+hyper-parameters is possible, but the performance appears to be relatively plateaued
+with the current predictors.
+
+\begin{table}[h!tb]
     \centering
-    \label{pred-v-actual}
-    \includegraphics[width=\textwidth]{predicted-v-actual.pdf}
-    \caption{Predicted v. Actual}
+    \begin{tabular}{lllll}
+        \textbf{\texttt{degree}} & \textbf{\texttt{nprune}} & \textbf{RMSE} & \textbf{R$^2$} & \textbf{MAE}                \\ \hline\hline
+        3                        & 35                       & 0.8192        & 0.9213         & 0.5225                      \\
+        3                        & 40                       & 0.8141        & 0.9223         & 0.5199                      \\
+        3                        & 45                       & 0.8131        & 0.9225         & 0.5192                      \\
+        4                        & 35                       & 0.8011        & 0.9248         & 0.5200                      \\
+        4                        & 40                       & 0.7983        & 0.9253         & 0.5178                      \\
+        4                        & 45                       & 0.7977        & 0.9254         & 0.5172                      \\
+        5                        & 35                       & 0.8009        & 0.9248         & 0.5202                      \\
+        5                        & 40                       & 0.7981        & 0.9253         & 0.5182                      \\ \hline
+        \multicolumn{1}{|l}{5}   & 45                       & 0.7975        & 0.9254         & \multicolumn{1}{l|}{0.5177} \\ \hline
+    \end{tabular}
+    \caption{Summary of \texttt{caret} training results for \texttt{earth}}
+    \label{mars-summary}
+\end{table}
+
+\paragraph{Post-Processing} After clamping predicted magnitudes $<1$ up to 1,
+the resampled performance yielded marginal improvements across the categories as
+shown in Table \ref{post-process-summary}.
+
+\begin{table}[h!tb]
+    \centering
+    \begin{tabular}{lll}
+        \textbf{RMSE} & \textbf{R}$^2$ & \textbf{MAE} \\ \hline\hline
+        0.7957        & 0.9278         & 0.5268
+    \end{tabular}
+    \caption{Performance of Post-Processed Predictions}
+    \label{post-process-summary}
+\end{table}
+
+\paragraph{Residual Analysis} Figure \ref{pred-v-actual} shows a plot demonstrating
+the post-processed prediction of the NSB against the actual NSB measured magnitude.
+Figure \ref{residuals} shows a plot demonstrating the residual values for each
+predicted NSB magnitude. From these plots it is seen that the model has been 
+relatively strongly impacted by the large cluster of bright nights in the dataset,
+and tends to over-estimate the night sky brightness.
+
+\begin{figure}[h!]
+    \centering
+
+    % --- Left Subfigure ---
+    \begin{subfigure}[b]{0.45\textwidth} % [b] for vertical alignment (baseline), 0.45\textwidth sets width
+        \centering
+        \label{pred-v-actual}
+        \includegraphics[width=\textwidth]{predicted-v-actual.pdf}
+        \caption{Predicted v. Actual}
+    \end{subfigure}
+    \hfill % Adds horizontal space between subfigures
+    % --- Right Subfigure ---
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \label{residuals}
+        \includegraphics[width=\textwidth]{residuals.pdf}
+        \caption{Predicted v. Residual}
+    \end{subfigure}
+
+    \caption{Predicted Values and Residuals}
+    \label{fig:combined}
 \end{figure}
 
-\begin{figure}[h!tb]
+\paragraph{Coefficients} After the relatively aggressive pruning parameter of 
+\texttt{nprune}$=45$ in the final model, the original set of 26 predictors were 
+trimmed down to a 5-way interaction between the 10 listed in Table \ref{var-imp}.
+
+\begin{table}[h!tb]
     \centering
-    \label{residuals}
-    \includegraphics[width=\textwidth]{residuals.pdf}
-    \caption{Predicted v. Residual}
-\end{figure}
+    \begin{tabular}{llll}
+        \textbf{variable}  & \textbf{nsubsets} & \textbf{gcv} & \textbf{rss} \\ \hline
+        sun\_alt           & 44                & 100.00       & 100.00       \\
+        moon\_alt          & 42                & 79.415       & 79.42        \\
+        elec\_dist\_sq     & 42                & 73.623       & 73.63        \\
+        noon\_cos          & 42                & 73.623       & 73.63        \\
+        zip\_pop           & 39                & 43.679       & 43.70        \\
+        moon\_phase        & 37                & 34.399       & 34.43        \\
+        zip\_dist\_sq      & 32                & 18.826       & 18.89        \\
+        summer\_cos        & 26                & 12.786       & 12.86        \\
+        es                 & 22                & 10.295       & 10.38        \\
+        elec\_summer\_peak & 19                & 8.653        & 8.74
+    \end{tabular}
+    \caption{Final \texttt{earth} Model Variable Importance}
+    \label{var-imp}
+\end{table}
 
 \subsection{Key Findings}
 \paragraph{} TO-DO

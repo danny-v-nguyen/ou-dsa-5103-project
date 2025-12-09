@@ -43,10 +43,10 @@ ggsave(
 df.pred <- data.frame(Actual = data.test$nsb, Predicted = p_post) %>%
   rename(Predicted = y)
 plot.pred_vs_actual <- ggplot(df.pred,
-                              aes(x = Actual, y = Predicted)) +
+                              aes(y = Actual, x = Predicted)) +
   geom_point(alpha = 0.5) +
   geom_abline(intercept = 0, slope = 1, color = "red", linetype = "dashed") +
-  labs(title = "Actual vs. Predicted Values", x = "Actual Outcome", y = "Model Prediction") +
+  labs(title = "Predicted vs. Actual Values", y = "Actual Value", x = "Predicted") +
   theme_minimal()
 
 ggsave(
