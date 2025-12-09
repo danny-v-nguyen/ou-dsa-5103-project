@@ -451,7 +451,20 @@ to yield a final model with predictive night-sky brightness magnitudes with
 either over-tuned for the 5 site restriction of the dataset, or it is a fantastically
 accurate model.
 
-\paragraph{Key Insights} TO-DO
+\paragraph{Key Insights} It is important to reiterate that the training dataset
+for the night sky brightness was limited to the 5 US based sites that report the 
+data. The distances, populations, and electrical information are static with only
+5 possible values corresponding to their respective sites. Whether or not this
+extends generally to any location remains to be seen. With this restriction in mind,
+We find that the model pruned away all variables except for ones relating to the
+season (e.g. \texttt{summer\_cos} is a feature engineered as the cosine of the month of
+a measure relative to June) or time of day (relative to noon), sun/moon position, 
+nearby population and distance, and local energy usage (specifically the summer peak
+value). Somewhat mysteriously, the only weather predictor that survived the pruning
+was the \texttt{es} vapor pressure measurement for the site. The primary suspect
+is that the average of the weather effects across the years between all 5 sites
+was baked into the model hinge function coefficients.
+
 \paragraph{Final Recommendations and Impact} TO-DO
 
 
