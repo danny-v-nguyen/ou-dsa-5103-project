@@ -81,3 +81,5 @@ df.imp <- data.frame(nsubsets = imp[,"nsubsets"],
                      gcv = imp[,"gcv"],
                      rss = imp[,"rss"])
 df.imp %>% kable()
+
+sort(coef(fit.mars$finalModel))

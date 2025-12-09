@@ -231,12 +231,11 @@ from the variables compiled via the sources above (26 total), when performing a 
 43.4\% of the data-set variance is contained within components 1 and 2. A random 
 sample of 5\% of the data was selected to plot against PC1 and PC2 for easier 
 viewing, with each point colored by a gradient for the associated NSB measured 
-value. This bi-plot is shown in Figure \ref{PCA}.
+value. This bi-plot is shown in Figure \ref{PCA}. A cursory inspection of the 
+plot implies there may be a skew of low NSB nights (the points of interest) in 
+the direction of PC1.
 
-A cursory inspection of the figure implies there may be a skew of low NSB nights
-(the points of interest) in the direction of PC1.
-
-\begin{figure}[h!tb]
+\begin{figure}[h!]
     \centering
     \includegraphics[width=\textwidth]{pca.pdf}
     \caption{PCA Bi-Plot w/ Night-Sky Brightness Gradient}
@@ -388,14 +387,14 @@ and tends to over-estimate the night sky brightness.
     \label{fig:combined}
 \end{figure}
 
-\paragraph{Coefficients} After the relatively aggressive pruning parameter of 
+\paragraph{Variable Importance} After the relatively aggressive pruning parameter of 
 \texttt{nprune}$=45$ in the final model, the original set of 26 predictors were 
-trimmed down to a 5-way interaction between the 10 listed in Table \ref{var-imp}.
+trimmed down to a 5-way interaction between the 10 variables listed in Table \ref{var-imp}.
 
 \begin{table}[h!tb]
     \centering
     \begin{tabular}{llll}
-        \textbf{variable}  & \textbf{nsubsets} & \textbf{gcv} & \textbf{rss} \\ \hline
+        \textbf{variable}  & \textbf{nsubsets} & \textbf{gcv} & \textbf{rss} \\ \hline\hline
         sun\_alt           & 44                & 100.00       & 100.00       \\
         moon\_alt          & 42                & 79.415       & 79.42        \\
         elec\_dist\_sq     & 42                & 73.623       & 73.63        \\
@@ -411,8 +410,26 @@ trimmed down to a 5-way interaction between the 10 listed in Table \ref{var-imp}
     \label{var-imp}
 \end{table}
 
+
 \subsection{Key Findings}
-\paragraph{} TO-DO
+
+\paragraph{Final Variables} The intercept of the final model starts at $19.59$.
+Inspecting the hinge functions of the final model show that the largest positive 
+impacts on NSB were sun altitude, nearby population, distance to nearby population 
+centroid, distance to nearest electrical service provider, and proximity to noon. 
+The moon altitude and moon phase begin to appear in several interactions with 
+the other variables in determining the subtraction of predicted NSB. Interestingly
+most of the weather variables were pruned away. The leftover variables largely
+only relate to the time of year, time of day, and locality to population/electricity
+usage.
+
+\paragraph{} However, because of the initial limitation of the dataset to the 5
+sites that participate in the GaN project in the USA; it is likely due to the
+weather effects specific to these sites being averaged away in the tuned coefficients.
+Unfortunately, to verify this would require purchasing the SQM-LE research tool to 
+measure the night sky from off-nominal locations. Combined with a suspiciously 
+high $R^2$, we believe that the model is over-tuned to the specific environments 
+of the 5 sites.
 
 \section{Conclusion}
 
