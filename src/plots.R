@@ -55,13 +55,13 @@ plot.pred_vs_actual <- ggplot(df.pred,
                               aes(y = Actual, x = Predicted)) +
   geom_point(alpha = 0.5) +
   geom_abline(intercept = 0, slope = 1, color = "red", linetype = "dashed") +
-  #labs(title = "Predicted vs. Actual Values", y = "Actual Value", x = "Predicted") +
-  labs(title = paste("Predicted vs. Actual Values - ",site_i,sep=""), y = "Actual Value", x = "Predicted") +
+  labs(title = "Predicted vs. Actual Values", y = "Actual Value", x = "Predicted") +
+  #labs(title = paste("Predicted vs. Actual Values - ",site_i,sep=""), y = "Actual Value", x = "Predicted") +
   theme_minimal()
 
 ggsave(
-  #filename = "../doc/draft/predicted-v-actual.pdf",
-  filename = paste("../doc/draft/predicted-v-actual-",site_i,".pdf",sep=""),
+  filename = "../doc/draft/predicted-v-actual_no-SR.pdf",
+  #filename = paste("../doc/draft/predicted-v-actual-",site_i,".pdf",sep=""),
   plot = plot.pred_vs_actual,
   width = 6,
   height = 4,
@@ -75,13 +75,13 @@ plot.residuals <- ggplot(df.res,
                          aes(x = Predicted, y = Residuals)) +
   geom_point(alpha = 0.5) +
   geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
-  #labs(title = "Residuals Plot", y = "Residuals (Actual - Predicted)") +
-  labs(title = paste("Residuals Plot - ",site_i,sep=""), y = "Residuals (Actual - Predicted)") +
+  labs(title = "Residuals Plot", y = "Residuals (Actual - Predicted)") +
+  #labs(title = paste("Residuals Plot - ",site_i,sep=""), y = "Residuals (Actual - Predicted)") +
   theme_minimal()
 
 ggsave(
-  #filename = "../doc/draft/residuals.pdf",
-  filename = paste("../doc/draft/residuals-",site_i,".pdf",sep=""),
+  filename = "../doc/draft/residuals_no-SR.pdf",
+  #fiame = paste("../doc/draft/residuals-",site_i,".pdf",sep=""),
   plot = plot.residuals,
   width = 6,
   height = 4,

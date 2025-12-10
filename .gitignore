@@ -12,6 +12,7 @@
 !*.tex
 !*.bib
 !*.pdf
+!*.png
 
 # Data files
 !*.xml
