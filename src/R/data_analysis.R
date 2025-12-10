@@ -337,8 +337,48 @@ data %>%
 
 
 
+# gonna train a mars model for each individual site instead of all 13 together
+data.prep <- data %>%
+  mutate(
+    # Convert the column to a date-time object
+    datetime = as_datetime(Timestamp_UTC),
+    
+    # Get month and hour
+    summer_cos = ifelse(is.na(datetime), cos((month(ymd(Timestamp_UTC))-6)*(pi/6)), 
+                        cos((month(datetime)-6)*(pi/6))),                     # Assume peak brightness at June
+    noon_cos = ifelse(is.na(datetime), -1, cos((hour(datetime)-12)*(pi/12)))  # Assume peak brightness at noon
+  ) %>%
+  select(-c(datetime,Timestamp_UTC,zip_code,lat,lon)) %>% # Drop timestamps and site specific data
+  mutate(
+    # Mean imputing missing elec_summer_peak and elec_winter_peak
+    across(
+      .cols = c(elec_summer_peak,elec_winter_peak),
+      .fns = ~ replace_na(., mean(., na.rm = TRUE))
+    )
+  )
 
-
+# split datasets into each site
+for (site_i in levels(data.prep$site)) {
+  
+  data.site <- data.prep %>% dplyr::filter(site==site_i) %>% dplyr::select(-site)
+  
+  # Split the training and testing data (75%, 25%) respectively
+  set.seed(2025125103)
+  test_index <- createDataPartition(
+    y = data.site[,'nsb'],
+    p = 0.25, # 25% for the test set
+    list = FALSE
+  )
+  
+  # Separate the datasets
+  data.train <- data.site[-test_index,]
+  data.test <- data.site[test_index,]
+  
+  saveRDS(data.site, paste("data/data-prep-",site_i,".rds",sep=""))
+  saveRDS(data.train, paste("data/data-train-",site_i,".rds",sep=""))
+  saveRDS(data.test, paste("data/data-test-",site_i,".rds",sep=""))
+  
+}
 
 
 
