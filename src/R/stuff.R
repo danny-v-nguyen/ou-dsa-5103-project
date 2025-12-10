@@ -55,9 +55,9 @@ test_index <- createDataPartition(
 data.train <- data.prep[-test_index, ]
 data.test <- data.prep[test_index, ]
 
-saveRDS(data.prep, "data/data-prep_no-SR.rds")
-saveRDS(data.train, "data/data-train_no-SR.rds")
-saveRDS(data.test, "data/data-test_no-SR.rds")
+saveRDS(data.prep, "data/data-prep.rds")
+saveRDS(data.train, "data/data-train.rds")
+saveRDS(data.test, "data/data-test.rds")
 
 data.prep <- readRDS("data/data-prep_no-SR.rds")
 data.train <- readRDS("data/data-train_no-SR.rds")

@@ -8,18 +8,23 @@ options(digits = 4,
         scipen = 10)
 
 data <- readRDS("data/combined-dataset.rds")
-#data.prep <- readRDS("data/data-prep.rds")
-#data.train <- readRDS("data/data-train.rds")
-#data.test <- readRDS("data/data-test.rds")
-#fit.mars <- readRDS("mars-model.rds")
+data.prep <- readRDS("data/data-prep.rds")
+data.train <- readRDS("data/data-train.rds")
+data.test <- readRDS("data/data-test.rds")
+fit.mars <- readRDS("mars-model.rds")
 
-sites = levels(data$site)
-site_i <- sites[[13]]
+levels(data.test$site)
 
-data.prep <- readRDS(paste("data/data-prep-",site_i,".rds",sep=""))
-data.train <- readRDS(paste("data/data-train-",site_i,".rds",sep=""))
-data.test <- readRDS(paste("data/data-test-",site_i,".rds",sep=""))
-fit.mars <- readRDS(paste("mars-model-",site_i,".rds",sep=""))
+data.test$site <- fct_other(data.test$site, keep=c('SR','TSU'))
+
+
+#sites = levels(data$site)
+#site_i <- sites[[13]]
+
+#data.prep <- readRDS(paste("data/data-prep-",site_i,".rds",sep=""))
+#data.train <- readRDS(paste("data/data-train-",site_i,".rds",sep=""))
+#data.test <- readRDS(paste("data/data-test-",site_i,".rds",sep=""))
+#fit.mars <- readRDS(paste("mars-model-",site_i,".rds",sep=""))
 
 p <- predict(fit.mars, data.test)
 p_post <- ifelse(p < 1, 1, p)
@@ -31,7 +36,7 @@ pca_index <- createDataPartition(
   list = FALSE
 )
 data.pca <-data.prep[pca_index, ]
-pca <- prcomp(data.pca %>% select(-nsb), center = TRUE, scale = TRUE)
+pca <- prcomp(data.pca %>% select(-c(nsb,site)), center = TRUE, scale = TRUE)
 plot.pca <- ggbiplot(pca,
                      groups = data.pca$nsb,
                      obs.scale = 0.8,
@@ -49,10 +54,10 @@ ggsave(
   units = "in"
 )
 
-df.pred <- data.frame(Actual = data.test$nsb, Predicted = p_post) %>%
+df.pred <- data.frame(Actual = data.test$nsb, Predicted = p_post, Site=data.test$site) %>%
   rename(Predicted = y)
 plot.pred_vs_actual <- ggplot(df.pred,
-                              aes(y = Actual, x = Predicted)) +
+                              aes(y = Actual, x = Predicted, color=Site)) +
   geom_point(alpha = 0.5) +
   geom_abline(intercept = 0, slope = 1, color = "red", linetype = "dashed") +
   labs(title = "Predicted vs. Actual Values", y = "Actual Value", x = "Predicted") +
@@ -60,7 +65,7 @@ plot.pred_vs_actual <- ggplot(df.pred,
   theme_minimal()
 
 ggsave(
-  filename = "../doc/draft/predicted-v-actual_no-SR.pdf",
+  filename = "../doc/draft/predicted-v-actual_highlight-SR-TSU.pdf",
   #filename = paste("../doc/draft/predicted-v-actual-",site_i,".pdf",sep=""),
   plot = plot.pred_vs_actual,
   width = 6,
@@ -69,10 +74,10 @@ ggsave(
 )
 
 residuals <- data.test$nsb - p_post
-df.res <- data.frame(Predicted = p_post, Residuals = residuals) %>%
+df.res <- data.frame(Predicted = p_post, Residuals = residuals, Site=data.test$site) %>%
   rename(Predicted = y, Residuals = y.1)
 plot.residuals <- ggplot(df.res,
-                         aes(x = Predicted, y = Residuals)) +
+                         aes(x = Predicted, y = Residuals, color=Site)) +
   geom_point(alpha = 0.5) +
   geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
   labs(title = "Residuals Plot", y = "Residuals (Actual - Predicted)") +
@@ -80,7 +85,7 @@ plot.residuals <- ggplot(df.res,
   theme_minimal()
 
 ggsave(
-  filename = "../doc/draft/residuals_no-SR.pdf",
+  filename = "../doc/draft/residuals_highlight-SR-TSU.pdf",
   #fiame = paste("../doc/draft/residuals-",site_i,".pdf",sep=""),
   plot = plot.residuals,
   width = 6,
