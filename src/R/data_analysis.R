@@ -303,13 +303,37 @@ moon_phase <- function(lat,lon,datetime,elev) {
   
 }
 
-
 data$moon_phase <- mapply(moon_phase, lat=data$lat, lon=data$lon, datetime=data$Timestamp_UTC, elev=data$elev)
 
 saveRDS(data, file = 'C:\\Users\\brook\\Documents\\GitHub\\ou-dsa-5103-project\\src\\data\\combined-dataset.rds')
 
 
 
+# more visualization shit
+data <- readRDS("data/combined-dataset.rds")
+
+sites = levels(data$site)
+
+data %>% dplyr::group_by(data$site) %>% summarize(count=n())
+
+# adding state variable just for visualization purposes
+for (i in sites) {
+  
+  if (i=='UBD' | i=='MBD' | i=='LBD' | i=='BMCO') {
+    data[data$site==i,'state'] <- 'AR'
+  } else if (i=='GMARS' | i=='TSO') {
+    data[data$site==i,'state'] <- 'CA'
+  } else if (i=='Cre') {
+    data[data$site==i,'state'] <- 'CO' 
+  } else {
+    data[data$site==i,'state'] <- 'TX'
+  }
+}
+
+
+data %>%
+  ggplot( aes(x=site, y=nsb, fill=state)) +
+  geom_boxplot()
 
 
 
