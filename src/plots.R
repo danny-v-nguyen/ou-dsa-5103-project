@@ -11,7 +11,11 @@ data <- readRDS("data/combined-dataset.rds")
 data.prep <- readRDS("data/data-prep.rds")
 data.train <- readRDS("data/data-train.rds")
 data.test <- readRDS("data/data-test.rds")
-fit.mars <- readRDS("mars-model.rds")
+#fit.mars <- readRDS("mars-model.rds")
+
+data.prep <- readRDS("data/data-prep_no-SR.rds")
+data.test <- readRDS("data/data-test_no-SR.rds")
+fit.mars <- readRDS("mars-model_no-SR.rds")
 
 levels(data.test$site)
 
@@ -41,10 +45,12 @@ plot.pca <- ggbiplot(pca,
                      groups = data.pca$nsb,
                      obs.scale = 0.8,
                      var.scale = 1,
-                     var.axes = FALSE,
+                     var.axes = TRUE,
                      point.size = 1) +
+  scale_alpha() +
   scale_color_continuous(name = "NSB") +
   theme_minimal()
+plot(plot.pca)
 
 ggsave(
   filename = "../doc/draft/pca.pdf",
