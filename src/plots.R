@@ -63,7 +63,7 @@ ggsave(
 df.pred <- data.frame(Actual = data.test$nsb, Predicted = p_post, Site=data.test$site) %>%
   rename(Predicted = y)
 plot.pred_vs_actual <- ggplot(df.pred,
-                              aes(y = Actual, x = Predicted, color=Site)) +
+                              aes(y = Actual, x = Predicted)) +
   geom_point(alpha = 0.5) +
   geom_abline(intercept = 0, slope = 1, color = "red", linetype = "dashed") +
   labs(title = "Predicted vs. Actual Values", y = "Actual Value", x = "Predicted") +
@@ -71,7 +71,7 @@ plot.pred_vs_actual <- ggplot(df.pred,
   theme_minimal()
 
 ggsave(
-  filename = "../doc/draft/predicted-v-actual_highlight-SR-TSU.pdf",
+  filename = "../doc/draft/predicted-v-actual_no-SR.pdf",
   #filename = paste("../doc/draft/predicted-v-actual-",site_i,".pdf",sep=""),
   plot = plot.pred_vs_actual,
   width = 6,
