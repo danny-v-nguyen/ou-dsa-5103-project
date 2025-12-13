@@ -107,3 +107,47 @@ df.imp <- data.frame(nsubsets = imp[,"nsubsets"],
 df.imp %>% kable()
 
 sort(coef(fit.mars$finalModel))
+
+df <- data %>%
+  filter(site == "SR")
+df.time <- data.frame(nsb = df$nsb,
+                      utc = as.POSIXct(df$Timestamp_UTC))
+n.v.t <- ggplot(data = df.time, mapping = aes(x = utc, y = nsb)) + geom_point() +
+  labs(title = "Night Sky Brightness vs. UTC Timestamp",
+       x = "UTC (sec)", y = "NSB (mag/arcsec^2)")
+ggsave(
+  filename = "../doc/nsb-v-time.png",
+  plot = n.v.t,
+  width = 6,
+  height = 4,
+  units = "in"
+)
+
+df.hour <- data.prep %>%
+  filter(site == "GMARS") %>%
+  group_by(noon_cos) %>%
+  select(nsb,noon_cos)
+n.v.h <- ggplot(data = df.hour, mapping = aes(x = noon_cos, y = nsb)) + geom_point() +
+  labs(title = "Night Sky Brightness vs. Relativity to Noon (GMARS)",
+       x = "Cosine(t_hour-12)", y = "NSB (mag/arcsec^2)")
+ggsave(
+  filename = "../doc/nsb-v-hour.png",
+  plot = n.v.h,
+  width = 6,
+  height = 4,
+  units = "in"
+)
+
+df <- data
+df.ele <- data.frame(nsb = df$nsb,
+                     elev = df$elev)
+n.v.e <- ggplot(data = df.ele, mapping = aes(x = elev, y = nsb)) + geom_point() +
+  labs(title = "Night Sky Brightness vs. Elevation",
+       x = "Elevation (m)", y = "NSB (mag/arcsec^2)")
+ggsave(
+  filename = "../doc/nsb-v-elev.png",
+  plot = n.v.e,
+  width = 6,
+  height = 4,
+  units = "in"
+)
