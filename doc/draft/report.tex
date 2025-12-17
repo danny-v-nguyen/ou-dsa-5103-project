@@ -286,7 +286,32 @@ every 5 minutes. However, the meteorological data is provided at an hourly
 resolution, so the mean night sky brightness of each hour is calculated and used 
 instead. A local timestamp, as well as a UTC timestamp is recorded at the time 
 of each observation as well, but only the UTC timestamp was kept, as the ERA5 
-timestamps are provided in UTC.
+timestamps are provided in UTC. Figures \ref{fig:nsb-v-time}a and \ref{fig:nsb-v-time}b
+show the larger overarching seasonal pattern in the data and the more local time 
+pattern per site.
+
+\begin{figure}[h!]
+    \centering
+
+    % --- Left Subfigure ---
+    \begin{subfigure}[b]{0.45\textwidth} % [b] for vertical alignment (baseline), 0.45\textwidth sets width
+        \centering
+        \label{nsb-v-time}
+        \includegraphics[width=\textwidth]{nsb-v-time.png}
+        \caption{NSB for All Sites by Time (Unadjusted)}
+    \end{subfigure}
+    \hfill % Adds horizontal space between subfigures
+    % --- Right Subfigure ---
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \label{nsb-v-hr-GMARS}
+        \includegraphics[width=\textwidth]{nsb-v-hour.png}
+        \caption{NSB for GMARS Site by Hour}
+    \end{subfigure}
+
+    \caption{`SR' Site vs Others}
+    \label{fig:nsb-v-time}
+\end{figure}
 
 \paragraph{NOTE:} After a preliminary model evaluation, measurements from the \texttt{SR}
 site were creating strange residual behavior in the model. Because this site was
