@@ -57,7 +57,7 @@
 %\doublespacing         % Together with the package setspace above allows for
                         % doublespacing of the document
 
-\title{Modeling light pollution using geospatial, meteorologoical, energy usage, 
+\title{Modeling light pollution using geospatial, meteorological, energy usage, 
        and population data}
 \author{\myteam\\
         Group 1\\
@@ -106,11 +106,14 @@ nearest geographic electric-service provider is a rough approximation that may n
 accurately reflect the actual service-provider for a given area, most notably for
 high population density zones that are serviced by multiple providers. Population
 data is also limited to the static values collected during the 2020 US Census. 
-Time-based population estimation methods were not used.
+Time-based population estimation methods were not used. Ultimately, the site data
+for `SR' Silver Ranch in TX was dropped from consideration due to abnormal measurement
+distributions on the high-end of night sky brightness compared to the rest of the
+sites.
 
 \paragraph{Summary of Findings} The final trained MARS model made predictions 
-against a 25\% data test-holdout set with a 5-repeats 10-fold CV performance of
-$RMSE=0.7957$, $R^2 = 0.9278$, and $MAE = 0.5268$. Concerningly, the final model 
+against a 25\% data test-holdout set with a 5-repeated 10-fold CV performance of
+$RMSE=0.6731$, $R^2 = 0.9093$, and $MAE = 0.4209$. Of concern, the final model 
 pruned nearly all meteorological variables, placing emphasis nearly entirely on 
 relative sun/moon positions, time of year/day, and locality to population/electrical 
 centers.
@@ -119,7 +122,7 @@ centers.
 additional site with different local meteorological conditions. If the model stands
 up to generalization, then further refinement can be done focusing within tuning
 the model's predictions on the low-end of night sky brightness where the most
-outliers are present. 
+outliers are present.  
 
 \pagebreak
 
@@ -228,6 +231,14 @@ This dataset denotes ZIP Code centroid locations weighted by population. \\
 sites and night sky brightness readings are relatively sparse ($\sim$63\% missing); 
 however most of the missing measurements are from the daylight hours. Additionally 
 the minimum time resolution of measurements is to the UTC hour instead of the local hour.
+A box-plot of the NSB measured at each site is shown in Figure \ref{fig:boxplot-site}.
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=17cm]{nsb_vs_site_boxplot.png}
+    \caption{Box-plot of Night Sky Brightness Measurements by Site}
+    \label{fig:boxplot-site}
+\end{figure}
 
 \paragraph{Meteorological Data} Given that ERA5 is a reanalysis dataset, there 
 are no missing values that must be accommodated.
@@ -275,7 +286,37 @@ every 5 minutes. However, the meteorological data is provided at an hourly
 resolution, so the mean night sky brightness of each hour is calculated and used 
 instead. A local timestamp, as well as a UTC timestamp is recorded at the time 
 of each observation as well, but only the UTC timestamp was kept, as the ERA5 
-timestamps are provided in UTC. 
+timestamps are provided in UTC.
+
+\paragraph{NOTE:} After a preliminary model evaluation, measurements from the \texttt{SR}
+site were creating strange residual behavior in the model. Because this site was
+unique in the amount of bright sky measurements and had anomalous patterns in its
+readings compared to the rest of the sites, it was removed from the training and 
+testing data. A comparison of the SR site measurements and the rest of the sites
+are shown in Figure \ref{fig:SRresults}
+
+\begin{figure}[h!]
+    \centering
+
+    % --- Left Subfigure ---
+    \begin{subfigure}[b]{0.45\textwidth} % [b] for vertical alignment (baseline), 0.45\textwidth sets width
+        \centering
+        \label{SRactuals}
+        \includegraphics[width=\textwidth]{predicted-v-actual_highlight-SR.pdf}
+        \caption{Predicted v. Actual}
+    \end{subfigure}
+    \hfill % Adds horizontal space between subfigures
+    % --- Right Subfigure ---
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \label{SRresiduals}
+        \includegraphics[width=\textwidth]{residuals_highlight-SR.pdf}
+        \caption{Predicted v. Residual}
+    \end{subfigure}
+
+    \caption{`SR' Site vs Others}
+    \label{fig:SRresults}
+\end{figure}
 
 \paragraph{Meteorological Data} ERA5 is currently one of the most popular and 
 comprehensive meteorological reanalysis datasets publicly available, with a 
@@ -342,17 +383,28 @@ with the current predictors.
 
 \begin{table}[h!tb]
     \centering
-    \begin{tabular}{lllll}
+    \begin{tabular}{rcccl}
         \textbf{\texttt{degree}} & \textbf{\texttt{nprune}} & \textbf{RMSE} & \textbf{R$^2$} & \textbf{MAE}                \\ \hline\hline
-        3                        & 35                       & 0.8192        & 0.9213         & 0.5225                      \\
-        3                        & 40                       & 0.8141        & 0.9223         & 0.5199                      \\
-        3                        & 45                       & 0.8131        & 0.9225         & 0.5192                      \\
-        4                        & 35                       & 0.8011        & 0.9248         & 0.5200                      \\
-        4                        & 40                       & 0.7983        & 0.9253         & 0.5178                      \\
-        4                        & 45                       & 0.7977        & 0.9254         & 0.5172                      \\
-        5                        & 35                       & 0.8009        & 0.9248         & 0.5202                      \\
-        5                        & 40                       & 0.7981        & 0.9253         & 0.5182                      \\ \hline
-        \multicolumn{1}{|l}{5}   & 45                       & 0.7975        & 0.9254         & \multicolumn{1}{l|}{0.5177} \\ \hline
+        2                        & 25                       & 0.8809        & 0.8404         & 0.5562                      \\
+        2                        & 30                       & 0.8701        & 0.8443         & 0.5482                      \\
+        2                        & 35                       & 0.8691        & 0.8447         & 0.5479                      \\
+        2                        & 40                       & 0.8691        & 0.8447         & 0.5479                      \\
+        2                        & 45                       & 0.8691        & 0.8447         & 0.5479                      \\
+        3                        & 25                       & 0.7640        & 0.8799         & 0.4749                      \\
+        3                        & 30                       & 0.7419        & 0.8864         & 0.4590                      \\
+        3                        & 35                       & 0.7224        & 0.8923         & 0.4465                      \\
+        3                        & 40                       & 0.7160        & 0.8940         & 0.4394                      \\
+        3                        & 45                       & 0.7118        & 0.8952         & 0.4364                      \\
+        4                        & 25                       & 0.7644        & 0.8794         & 0.4707                      \\
+        4                        & 30                       & 0.7326        & 0.8893         & 0.4547                      \\
+        4                        & 35                       & 0.7124        & 0.8953         & 0.4419                      \\
+        4                        & 40                       & 0.6951        & 0.9002         & 0.4296                      \\ \hline
+        \multicolumn{1}{|r}{4}   & 45                       & 0.6822        & 0.9039         & \multicolumn{1}{l|}{0.4192} \\ \hline
+        5                        & 25                       & 0.7638        & 0.8796         & 0.4679                      \\
+        5                        & 30                       & 0.7360        & 0.8882         & 0.4525                      \\
+        5                        & 35                       & 0.7140        & 0.8948         & 0.4400                      \\
+        5                        & 40                       & 0.6980        & 0.8992         & 0.4283                      \\
+        5                        & 45                       & 0.6863        & 0.9025         & 0.4190
     \end{tabular}
     \caption{Summary of \texttt{caret} training results for \texttt{earth}}
     \label{mars-summary}
@@ -364,9 +416,9 @@ shown in Table \ref{post-process-summary}.
 
 \begin{table}[h!tb]
     \centering
-    \begin{tabular}{lll}
+    \begin{tabular}{rcl}
         \textbf{RMSE} & \textbf{R}$^2$ & \textbf{MAE} \\ \hline\hline
-        0.7957        & 0.9278         & 0.5268
+        0.6731        & 0.9093         & 0.4209
     \end{tabular}
     \caption{Performance of Post-Processed Predictions}
     \label{post-process-summary}
@@ -376,8 +428,10 @@ shown in Table \ref{post-process-summary}.
 the post-processed prediction of the NSB against the actual NSB measured magnitude.
 Figure \ref{fig:combined}b shows a plot demonstrating the residual values for each
 predicted NSB magnitude. From these plots it is seen that the model has been 
-relatively strongly impacted by the large cluster of bright nights in the dataset,
-and tends to over-estimate the night sky brightness.
+relatively strongly impacted by the large cluster of dark nights in the dataset.
+The residuals are roughly evenly distributed between the predictions, and even the
+outliers in the bright/dark ends of the results are symmetric with respect to each
+other.
 
 \begin{figure}[h!]
     \centering
@@ -386,7 +440,7 @@ and tends to over-estimate the night sky brightness.
     \begin{subfigure}[b]{0.45\textwidth} % [b] for vertical alignment (baseline), 0.45\textwidth sets width
         \centering
         \label{pred-v-actual}
-        \includegraphics[width=\textwidth]{predicted-v-actual.pdf}
+        \includegraphics[width=\textwidth]{predicted-v-actual_no-SR.pdf}
         \caption{Predicted v. Actual}
     \end{subfigure}
     \hfill % Adds horizontal space between subfigures
@@ -394,7 +448,7 @@ and tends to over-estimate the night sky brightness.
     \begin{subfigure}[b]{0.45\textwidth}
         \centering
         \label{residuals}
-        \includegraphics[width=\textwidth]{residuals.pdf}
+        \includegraphics[width=\textwidth]{residuals_no-SR.pdf}
         \caption{Predicted v. Residual}
     \end{subfigure}
 
@@ -404,22 +458,26 @@ and tends to over-estimate the night sky brightness.
 
 \paragraph{Variable Importance} After the relatively aggressive pruning parameter of 
 \texttt{nprune}$=45$ in the final model, the original set of 26 predictors were 
-trimmed down to a 5-way interaction between the 10 variables listed in Table \ref{var-imp}.
+trimmed down to a 4-way interaction between the 14 variables listed in Table \ref{var-imp}.
 
 \begin{table}[h!tb]
     \centering
-    \begin{tabular}{llll}
+    \begin{tabular}{rccl}
         \textbf{variable}  & \textbf{nsubsets} & \textbf{gcv} & \textbf{rss} \\ \hline\hline
-        sun\_alt           & 44                & 100.00       & 100.00       \\
-        moon\_alt          & 42                & 79.415       & 79.42        \\
-        elec\_dist\_sq     & 42                & 73.623       & 73.63        \\
-        noon\_cos          & 42                & 73.623       & 73.63        \\
-        zip\_pop           & 39                & 43.679       & 43.70        \\
-        moon\_phase        & 37                & 34.399       & 34.43        \\
-        zip\_dist\_sq      & 32                & 18.826       & 18.89        \\
-        summer\_cos        & 26                & 12.786       & 12.86        \\
-        es                 & 22                & 10.295       & 10.38        \\
-        elec\_summer\_peak & 19                & 8.653        & 8.74
+        moon\_alt          & 44                & 100.0        & 100.0        \\
+        sun\_alt           & 43                & 79.3         & 79.3         \\
+        noon\_cos          & 42                & 67.6         & 67.6         \\
+        elev               & 41                & 57.2         & 57.3         \\
+        zip\_pop           & 40                & 51.2         & 51.2         \\
+        moon\_phase        & 39                & 44.6         & 44.6         \\
+        t2m                & 36                & 32.3         & 32.3         \\
+        sun\_az            & 33                & 27.7         & 27.7         \\
+        elec\_dist\_sq     & 33                & 27.7         & 27.7         \\
+        summer\_cos        & 30                & 25.3         & 25.4         \\
+        cc                 & 28                & 22.6         & 22.6         \\
+        zip\_dist\_sq      & 21                & 15.5         & 15.6         \\
+        elec\_winter\_peak & 15                & 12.5         & 12.5         \\
+        lcc                & 11                & 10.3         & 10.4
     \end{tabular}
     \caption{Final \texttt{earth} Model Variable Importance}
     \label{var-imp}
@@ -428,23 +486,21 @@ trimmed down to a 5-way interaction between the 10 variables listed in Table \re
 
 \subsection{Key Findings}
 
-\paragraph{Final Variables} The intercept of the final model starts at $19.59$.
-Inspecting the hinge functions of the final model show that the largest positive 
-impacts on NSB were sun altitude, nearby population, distance to nearby population 
-centroid, distance to nearest electrical service provider, and proximity to noon. 
-The moon altitude and moon phase begin to appear in several interactions with 
-the other variables in determining the subtraction of predicted NSB. Interestingly
-most of the weather variables were pruned away. The leftover variables largely
-only relate to the time of year, time of day, and locality to population/electricity
-usage.
+\paragraph{Final Variables} The intercept of the final model starts at $19.7$,
+meaning the model starts with expecting a dark sky. Inspecting the hinge 
+functions of the final model show that the largest impacts on NSB were 
+sun altitude, nearby population, distance to nearby population centroid, 
+distance to nearest electrical service provider, proximity to noon, and cloud cover
+in the top 8 splines. The moon altitude and moon phase begin to appear in all 
+interactions after this point with the other variables. Interestingly
+most of the weather variables were pruned away.
 
 \paragraph{} However, because of the initial limitation of the dataset to the thirteen
-sites that participate in the GaN project in the USA; it is likely due to the
+sites that participate in the GaN project in the USA; we suspect it is likely due to the
 weather effects specific to these sites being averaged away in the tuned coefficients.
 Unfortunately, to verify this would require purchasing the SQM-LE research tool to 
-measure the night sky from off-nominal locations. Combined with a suspiciously 
-high $R^2$, we believe that the model is over-tuned to the specific environments 
-of the thirteen sites.
+measure the night sky from off-nominal locations. We believe that the model may be 
+over-tuned to the specific environments of the thirteen sites.
 
 \pagebreak
 \section{Conclusion}
@@ -463,12 +519,12 @@ local electricity usage, and time of day/year. Using supervised learning on the
 combined datasets between GaN, ERA5, US-DOE, and the US Census Bureau; a MARS model
 was trained to perform regression analysis through the \texttt{earth} R-package
 to yield a final model with predictive night-sky brightness magnitudes with
-\texttt{RMSE}$=0.7975$. Combined with an \textbf{R}$^2 = 0.9278$, the model is 
-either over-tuned for the thirteen site restriction of the dataset, or it is a fantastically
-accurate model.
+\texttt{RMSE}$=0.6731$. Combined with an \textbf{R}$^2 = 0.9093$, the model is 
+either over-tuned for the thirteen site restriction of the dataset, or it is a 
+fantastically accurate model.
 
 \paragraph{Key Insights} It is important to reiterate that the training dataset
-for the night sky brightness was limited to the thirteen US based sites that report the 
+for the night sky brightness was limited to the US based sites that report the 
 data. The distances, populations, and electrical information are static with only
 thirteen possible values corresponding to their respective sites. Whether or not this
 extends generally to any location remains to be seen. 
@@ -477,9 +533,9 @@ extends generally to any location remains to be seen.
 We find that the model pruned away all variables except for ones relating to the
 season (e.g. \texttt{summer\_cos} is a feature engineered as the cosine of the month of
 a measure relative to June) or time of day (relative to noon), sun/moon position, 
-nearby population and distance, and local energy usage (specifically the summer peak
-value). Somewhat mysteriously, the only weather predictor that survived the pruning
-was the \texttt{es} vapor pressure measurement for the site. 
+nearby population and distance, and local energy usage. Somewhat mysteriously, 
+the only weather predictors that survived the pruning was the \texttt{t2m} 
+temperature and both cloud-cover variables. 
 
 \paragraph{}The primary suspect is that the average of the weather effects 
 across the years between all thirteen sites was baked into the model hinge function 
