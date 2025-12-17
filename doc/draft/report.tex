@@ -113,16 +113,17 @@ sites.
 
 \paragraph{Summary of Findings} The final trained MARS model made predictions 
 against a 25\% data test-holdout set with a 5-repeated 10-fold CV performance of
-$RMSE=0.6731$, $R^2 = 0.9093$, and $MAE = 0.4209$. Of concern, the final model 
+$RMSE=0.7201$, $R^2 = 0.8962$, and $MAE = 0.4488$. Of concern, the final model 
 pruned nearly all meteorological variables, placing emphasis nearly entirely on 
 relative sun/moon positions, time of year/day, and locality to population/electrical 
 centers.
 
 \paragraph{Recommendations} The model predictions must be validated against an 
 additional site with different local meteorological conditions. If the model stands
-up to generalization, then further refinement can be done focusing within tuning
-the model's predictions on the low-end of night sky brightness where the most
-outliers are present.  
+up to generalization, then further refinement can easily be done by retraining 
+while controlling for the deterministic sun/moon parameters, adjusting all time-based
+features to have their periodicity adjusted for geographic location, using US Census
+techniques for population estimations for time of prediction, and more.
 
 \pagebreak
 
@@ -235,7 +236,7 @@ A box-plot of the NSB measured at each site is shown in Figure \ref{fig:boxplot-
 
 \begin{figure}[h!]
     \centering
-    \includegraphics[width=17cm]{nsb_vs_site_boxplot.png}
+    \includegraphics[width=17cm]{nsb_vs_site_boxplot_no-SR.pdf}
     \caption{Box-plot of Night Sky Brightness Measurements by Site}
     \label{fig:boxplot-site}
 \end{figure}
@@ -400,7 +401,7 @@ holdout data.
 \subsection{Model Results and Performance}
 
 \paragraph{Training Results} The model training results are shown in Table \ref{mars-summary}. 
-The hyper-parameters were tuned up to \texttt{degree}$=5$ and \texttt{nprune}$=45$, 
+The hyper-parameters were tuned up to \texttt{degree}$=5$ and \texttt{nprune}$=50$, 
 with marginal improvements in $RMSE$ with each expansion of the tuning grid after
 \texttt{degree}$=4$ and \texttt{nprune} $ > 30$. More fine tuning of the 
 hyper-parameters is possible, but the performance appears to be relatively plateaued
@@ -409,27 +410,8 @@ with the current predictors.
 \begin{table}[h!tb]
     \centering
     \begin{tabular}{rcccl}
-        \textbf{\texttt{degree}} & \textbf{\texttt{nprune}} & \textbf{RMSE} & \textbf{R$^2$} & \textbf{MAE}                \\ \hline\hline
-        2                        & 25                       & 0.8809        & 0.8404         & 0.5562                      \\
-        2                        & 30                       & 0.8701        & 0.8443         & 0.5482                      \\
-        2                        & 35                       & 0.8691        & 0.8447         & 0.5479                      \\
-        2                        & 40                       & 0.8691        & 0.8447         & 0.5479                      \\
-        2                        & 45                       & 0.8691        & 0.8447         & 0.5479                      \\
-        3                        & 25                       & 0.7640        & 0.8799         & 0.4749                      \\
-        3                        & 30                       & 0.7419        & 0.8864         & 0.4590                      \\
-        3                        & 35                       & 0.7224        & 0.8923         & 0.4465                      \\
-        3                        & 40                       & 0.7160        & 0.8940         & 0.4394                      \\
-        3                        & 45                       & 0.7118        & 0.8952         & 0.4364                      \\
-        4                        & 25                       & 0.7644        & 0.8794         & 0.4707                      \\
-        4                        & 30                       & 0.7326        & 0.8893         & 0.4547                      \\
-        4                        & 35                       & 0.7124        & 0.8953         & 0.4419                      \\
-        4                        & 40                       & 0.6951        & 0.9002         & 0.4296                      \\ \hline
-        \multicolumn{1}{|r}{4}   & 45                       & 0.6822        & 0.9039         & \multicolumn{1}{l|}{0.4192} \\ \hline
-        5                        & 25                       & 0.7638        & 0.8796         & 0.4679                      \\
-        5                        & 30                       & 0.7360        & 0.8882         & 0.4525                      \\
-        5                        & 35                       & 0.7140        & 0.8948         & 0.4400                      \\
-        5                        & 40                       & 0.6980        & 0.8992         & 0.4283                      \\
-        5                        & 45                       & 0.6863        & 0.9025         & 0.4190
+        \textbf{\texttt{degree}} & \textbf{\texttt{nprune}} & \textbf{RMSE} & \textbf{R$^2$} & \textbf{MAE}\\ \hline\hline
+        5                        & 50                       & 0.7219        & 0.8927         & 0.4473
     \end{tabular}
     \caption{Summary of \texttt{caret} training results for \texttt{earth}}
     \label{mars-summary}
@@ -443,7 +425,7 @@ shown in Table \ref{post-process-summary}.
     \centering
     \begin{tabular}{rcl}
         \textbf{RMSE} & \textbf{R}$^2$ & \textbf{MAE} \\ \hline\hline
-        0.6731        & 0.9093         & 0.4209
+        0.7201        & 0.8962         & 0.4488
     \end{tabular}
     \caption{Performance of Post-Processed Predictions}
     \label{post-process-summary}
@@ -483,31 +465,43 @@ other.
 
 \paragraph{Variable Importance} After the relatively aggressive pruning parameter of 
 \texttt{nprune}$=45$ in the final model, the original set of 26 predictors were 
-trimmed down to a 4-way interaction between the 14 variables listed in Table \ref{var-imp}.
+trimmed down to a 5-way interaction between the 13 variables listed in Figures \ref{fig:feat-imp-plot}
+and \ref{tbl:var-imp}.
 
-\begin{table}[h!tb]
+\begin{figure}
     \centering
-    \begin{tabular}{rccl}
-        \textbf{variable}  & \textbf{nsubsets} & \textbf{gcv} & \textbf{rss} \\ \hline\hline
-        moon\_alt          & 44                & 100.0        & 100.0        \\
-        sun\_alt           & 43                & 79.3         & 79.3         \\
-        noon\_cos          & 42                & 67.6         & 67.6         \\
-        elev               & 41                & 57.2         & 57.3         \\
-        zip\_pop           & 40                & 51.2         & 51.2         \\
-        moon\_phase        & 39                & 44.6         & 44.6         \\
-        t2m                & 36                & 32.3         & 32.3         \\
-        sun\_az            & 33                & 27.7         & 27.7         \\
-        elec\_dist\_sq     & 33                & 27.7         & 27.7         \\
-        summer\_cos        & 30                & 25.3         & 25.4         \\
-        cc                 & 28                & 22.6         & 22.6         \\
-        zip\_dist\_sq      & 21                & 15.5         & 15.6         \\
-        elec\_winter\_peak & 15                & 12.5         & 12.5         \\
-        lcc                & 11                & 10.3         & 10.4
-    \end{tabular}
-    \caption{Final \texttt{earth} Model Variable Importance}
-    \label{var-imp}
-\end{table}
+    \begin{minipage}[b]{0.45\textwidth}
+        \centering
+        \vspace{0pt}
+        \includegraphics[width=\linewidth]{feature_importance.png}
+        \caption{Plot of Feature Importance}
+        \label{fig:feat-imp-plot}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[b]{0.45\textwidth}
+        \centering
+        \vspace{0pt}
+        \begin{tabular}{rccl}
+            \textbf{variable}  & \textbf{nsubsets} & \textbf{gcv} & \textbf{rss} \\ \hline\hline
+            moon\_alt          & 43                & 100.0        & 100.0        \\
+            sun\_alt           & 42                & 78.9         & 78.9         \\
+            noon\_cos          & 42                & 78.9         & 78.9         \\
+            elev               & 40                & 56.2         & 56.2         \\
+            zip\_pop           & 39                & 49.9         & 50.0         \\
+            moon\_phase        & 38                & 43.0         & 43.0         \\
+            t2m                & 35                & 29.7         & 29.8         \\
+            sun\_az            & 34                & 27.5         & 27.6         \\
+            elec\_winter\_peak & 34                & 27.5         & 27.6         \\
+            elec\_dist\_sq     & 33                & 25.6         & 25.7         \\
+            cc                 & 28                & 18.5         & 18.6         \\
+            zip\_dist\_sq      & 24                & 14.9         & 15.0         \\
+            summer\_cos        & 17                & 8.8          & 8.9
+        \end{tabular}
+        \caption{Final \texttt{earth} Model Variable Importance}
+        \label{tbl:var-imp}
+    \end{minipage}
 
+\end{figure}
 
 \subsection{Key Findings}
 
@@ -544,7 +538,7 @@ local electricity usage, and time of day/year. Using supervised learning on the
 combined datasets between GaN, ERA5, US-DOE, and the US Census Bureau; a MARS model
 was trained to perform regression analysis through the \texttt{earth} R-package
 to yield a final model with predictive night-sky brightness magnitudes with
-\texttt{RMSE}$=0.6731$. Combined with an \textbf{R}$^2 = 0.9093$, the model is 
+\texttt{RMSE}$=0.7201$. Combined with an \textbf{R}$^2 = 0.8962$, the model is 
 either over-tuned for the thirteen site restriction of the dataset, or it is a 
 fantastically accurate model.
 
@@ -560,7 +554,7 @@ season (e.g. \texttt{summer\_cos} is a feature engineered as the cosine of the m
 a measure relative to June) or time of day (relative to noon), sun/moon position, 
 nearby population and distance, and local energy usage. Somewhat mysteriously, 
 the only weather predictors that survived the pruning was the \texttt{t2m} 
-temperature and both cloud-cover variables. 
+temperature and cloud-cover variables. 
 
 \paragraph{}The primary suspect is that the average of the weather effects 
 across the years between all thirteen sites was baked into the model hinge function 
