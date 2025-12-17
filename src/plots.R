@@ -7,15 +7,15 @@ library(knitr)
 options(digits = 4,
         scipen = 10)
 
-data <- readRDS("data/combined-dataset.rds")
-data.prep <- readRDS("data/data-prep.rds")
-data.train <- readRDS("data/data-train.rds")
-data.test <- readRDS("data/data-test.rds")
-fit.mars <- readRDS("mars-model.rds")
+data <- readRDS("data/combined-dataset_no-SR.rds")
+data.prep <- readRDS("data/data-prep_no-SR.rds")
+data.train <- readRDS("data/data-train_no-SR.rds")
+data.test <- readRDS("data/data-test_no-SR.rds")
+fit.mars <- readRDS("FINAL_mars-model_no-SR.rds")
 
 levels(data.test$site)
 
-data.test$site <- fct_other(data.test$site, keep=c('SR','TSU'))
+#data.test$site <- fct_other(data.test$site, keep=c('SR','TSU'))
 
 
 #sites = levels(data$site)
@@ -47,17 +47,17 @@ plot.pca <- ggbiplot(pca,
   theme_minimal()
 
 ggsave(
-  filename = "../doc/draft/pca.pdf",
+  filename = "../doc/draft/pca_no-SR.pdf",
   plot = plot.pca,
   width = 6,
   height = 4,
   units = "in"
 )
 
-df.pred <- data.frame(Actual = data.test$nsb, Predicted = p_post, Site=data.test$site) %>%
+df.pred <- data.frame(Actual = data.test$nsb, Predicted = p_post) %>%
   rename(Predicted = y)
 plot.pred_vs_actual <- ggplot(df.pred,
-                              aes(y = Actual, x = Predicted, color=Site)) +
+                              aes(y = Actual, x = Predicted)) +
   geom_point(alpha = 0.5) +
   geom_abline(intercept = 0, slope = 1, color = "red", linetype = "dashed") +
   labs(title = "Predicted vs. Actual Values", y = "Actual Value", x = "Predicted") +
@@ -65,7 +65,7 @@ plot.pred_vs_actual <- ggplot(df.pred,
   theme_minimal()
 
 ggsave(
-  filename = "../doc/draft/predicted-v-actual_highlight-SR-TSU.pdf",
+  filename = "../doc/draft/predicted-v-actual_no-SR.pdf",
   #filename = paste("../doc/draft/predicted-v-actual-",site_i,".pdf",sep=""),
   plot = plot.pred_vs_actual,
   width = 6,
@@ -74,10 +74,10 @@ ggsave(
 )
 
 residuals <- data.test$nsb - p_post
-df.res <- data.frame(Predicted = p_post, Residuals = residuals, Site=data.test$site) %>%
+df.res <- data.frame(Predicted = p_post, Residuals = residuals) %>%
   rename(Predicted = y, Residuals = y.1)
 plot.residuals <- ggplot(df.res,
-                         aes(x = Predicted, y = Residuals, color=Site)) +
+                         aes(x = Predicted, y = Residuals)) +
   geom_point(alpha = 0.5) +
   geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
   labs(title = "Residuals Plot", y = "Residuals (Actual - Predicted)") +
@@ -85,7 +85,7 @@ plot.residuals <- ggplot(df.res,
   theme_minimal()
 
 ggsave(
-  filename = "../doc/draft/residuals_highlight-SR-TSU.pdf",
+  filename = "../doc/draft/residuals_no-SR.pdf",
   #fiame = paste("../doc/draft/residuals-",site_i,".pdf",sep=""),
   plot = plot.residuals,
   width = 6,
@@ -101,3 +101,13 @@ df.imp <- data.frame(nsubsets = imp[,"nsubsets"],
 df.imp %>% kable()
 
 sort(coef(fit.mars$finalModel))
+
+summary(fit.mars)
+fit.mars$finalModel$prune.terms
+
+
+install.packages("vip")
+library(vip)
+
+vip(fit.mars, num_features = 26, geom = "point", value = "gcv") + ggtitle("GCV")
+

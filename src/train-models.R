@@ -6,7 +6,7 @@ library(ggbiplot)
 library(ggplot2)
 
 # Import data
-data <- readRDS("data/combined-dataset.rds")
+data <- readRDS("data/combined-dataset_no-SR.rds")
 
 data.prep <- data %>%
   mutate(
@@ -43,9 +43,9 @@ saveRDS(data.prep, "data/data-prep.rds")
 saveRDS(data.train, "data/data-train.rds")
 saveRDS(data.test, "data/data-test.rds")
 
-data.prep <- readRDS("data/data-prep.rds")
-data.train <- readRDS("data/data-train.rds")
-data.test <- readRDS("data/data-test.rds")
+data.prep <- readRDS("data/data-prep_no-SR.rds")
+data.train <- readRDS("data/data-train_no-SR.rds")
+data.test <- readRDS("data/data-test_no-SR.rds")
 
 # Desperate to make things go faster
 num_cores <- detectCores() - 1
@@ -68,17 +68,18 @@ ctrl <- trainControl(method = "repeatedcv",
 #fit.glm
 #saveRDS(fit.glm, "glm-model.rds")
 
-fit.mars <- readRDS("mars-model.rds")
-mars.tune <- expand.grid(nprune = c(35,40,45),
+mars.tune <- expand.grid(nprune = c(35,40,45,50,55),
                          degree = c(3,4,5))
-fit.mars <- train(nsb ~ .,
+
+fit.mars <- train(nsb ~ . - site,
                   data = data.train,
                   method = "earth",
                   tuneGrid = mars.tune,
                   trControl = ctrl,
                   preProcess = c("center", "scale"))
 fit.mars
-saveRDS(fit.mars, "mars-model.rds")
+summary(fit.mars)
+saveRDS(fit.mars, "mars-model_no-SR.rds")
 
 ###############
 # Stop parallel

@@ -4,7 +4,6 @@ options(digits=3)
 options(scipen=99)
 library(caret)
 library(tidyverse)
-library(doParallel)
 
 
 ################################# import data ##################################
@@ -110,18 +109,23 @@ trainSummary[2] %>% kable()
 
 ################################# oither stuff #########################
 
-atmos$Timestamp_UTC <- as_datetime(atmos$Timestamp_UTC, tz = "UTC")
 
-library(VIM)  #package for "Visualization and Imputation of Missing Values"
-
-# can use VIM's "aggr" function to also get overall information on missing
-a<-aggr(atmos)
-summary(a)
-
-# use VIM function "marginplot" to get a scatter plot that includes information on missing values
-marginplot(atmos[c('Timestamp_UTC','nsb')], col = c("blue", "red", "orange"))
+atmos <- readRDS('data\\nsb-era5-data-with-missing.rds')
 
 library(lubridate)
+
+atmos$Timestamp_UTC <- as_datetime(atmos$Timestamp_UTC, tz = "UTC")
+
+#library(VIM)  #package for "Visualization and Imputation of Missing Values"
+
+# can use VIM's "aggr" function to also get overall information on missing
+#a<-aggr(atmos)
+
+# use VIM function "marginplot" to get a scatter plot that includes information on missing values
+#marginplot(atmos[c('Timestamp_UTC','nsb')], col = c("blue", "red", "orange"))
+
+
+library(tidyverse)
 
 hourly_summary_floor <- atmos %>%
   mutate(hour_start = hour(Timestamp_UTC)) %>%
@@ -132,6 +136,7 @@ hourly_summary_floor <- atmos %>%
   ) %>%
   ungroup()
 
+library(ggplot2)
 
 ggplot(hourly_summary_floor, aes(x = hour_start, y = n_missing)) +
   geom_line() +
@@ -310,23 +315,31 @@ saveRDS(data, file = 'C:\\Users\\brook\\Documents\\GitHub\\ou-dsa-5103-project\\
 
 
 # more visualization shit
-data <- readRDS("data/combined-dataset.rds")
+data <- readRDS("data/combined-dataset_no-SR.rds")
+
+#data <- data %>% dplyr::filter(site!='SR')
+#saveRDS(data, "data/combined-dataset_no-SR.rds")
 
 sites = levels(data$site)
 
-data %>% dplyr::group_by(data$site) %>% summarize(count=n())
+counts <- data.frame(data %>% dplyr::group_by(data$site) %>% summarize(count=n()))
+counts %>% as_tibble()
 
 # adding state variable just for visualization purposes
 for (i in sites) {
   
   if (i=='UBD' | i=='MBD' | i=='LBD' | i=='BMCO') {
     data[data$site==i,'state'] <- 'AR'
+    counts[counts$data.site==i,'state'] <- 'AR'
   } else if (i=='GMARS' | i=='TSO') {
     data[data$site==i,'state'] <- 'CA'
+    counts[counts$data.site==i,'state'] <- 'CA'
   } else if (i=='Cre') {
-    data[data$site==i,'state'] <- 'CO' 
+    data[data$site==i,'state'] <- 'CO'
+    counts[counts$data.site==i,'state'] <- 'CO'
   } else {
     data[data$site==i,'state'] <- 'TX'
+    counts[counts$data.site==i,'state'] <- 'TX'
   }
 }
 
@@ -334,6 +347,13 @@ for (i in sites) {
 data %>%
   ggplot( aes(x=site, y=nsb, fill=state)) +
   geom_boxplot()
+
+
+data %>%
+  ggplot( aes(x=data$site, fill=state)) +
+  geom_histogram(stat='count') +
+  xlab('site') + 
+  ylab('observation count')
 
 
 
