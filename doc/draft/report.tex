@@ -99,7 +99,7 @@ pollution (night sky brightness) at a given location using primarily meteorologi
 energy usage, and population data.
 
 \paragraph{Major Concerns/Assumptions} The training data for night sky brightness
-is limited to thirteen observation sites with relatively sparse readings is expected 
+is limited to twelve observation sites with relatively sparse readings is expected 
 to be a significant training obstacle, likely to skew the models locally to those
 geographic locations. Additionally, the association of zip-codes to the
 nearest geographic electric-service provider is a rough approximation that may not 
@@ -229,7 +229,7 @@ This dataset denotes ZIP Code centroid locations weighted by population. \\
 \subsection{Exploratory Data Analysis}
 
 \paragraph{Night-Sky Brightness} The Globe at Night dataset only contains thirteen
-sites and night sky brightness readings are relatively sparse ($\sim$63\% missing); 
+sites (in the US) and night sky brightness readings are relatively sparse ($\sim$63\% missing); 
 however most of the missing measurements are from the daylight hours. Additionally 
 the minimum time resolution of measurements is to the UTC hour instead of the local hour.
 A box-plot of the NSB measured at each site is shown in Figure \ref{fig:boxplot-site}.
@@ -310,7 +310,7 @@ pattern per site.
         \caption{NSB for GMARS Site by Hour}
     \end{subfigure}
 
-    \caption{`SR' Site vs Others}
+    \caption{NSB Patterns w.r.t. Time}
     \label{fig:nsb-v-time}
 \end{figure}
 
@@ -514,12 +514,12 @@ in the top 8 splines. The moon altitude and moon phase begin to appear in all
 interactions after this point with the other variables. Interestingly
 most of the weather variables were pruned away.
 
-\paragraph{} However, because of the initial limitation of the dataset to the thirteen
+\paragraph{} However, because of the initial limitation of the dataset to the twelve
 sites that participate in the GaN project in the USA; we suspect it is likely due to the
 weather effects specific to these sites being averaged away in the tuned coefficients.
 Unfortunately, to verify this would require purchasing the SQM-LE research tool to 
 measure the night sky from off-nominal locations. We believe that the model may be 
-over-tuned to the specific environments of the thirteen sites.
+over-tuned to the specific environments of the twelve sites.
 
 \pagebreak
 \section{Conclusion}
@@ -539,13 +539,13 @@ combined datasets between GaN, ERA5, US-DOE, and the US Census Bureau; a MARS mo
 was trained to perform regression analysis through the \texttt{earth} R-package
 to yield a final model with predictive night-sky brightness magnitudes with
 \texttt{RMSE}$=0.7201$. Combined with an \textbf{R}$^2 = 0.8962$, the model is 
-either over-tuned for the thirteen site restriction of the dataset, or it is a 
+either over-tuned for the twelve site restriction of the dataset, or it is a 
 fantastically accurate model.
 
 \paragraph{Key Insights} It is important to reiterate that the training dataset
 for the night sky brightness was limited to the US based sites that report the 
 data. The distances, populations, and electrical information are static with only
-thirteen possible values corresponding to their respective sites. Whether or not this
+twelve possible values corresponding to their respective sites. Whether or not this
 extends generally to any location remains to be seen. 
 
 \paragraph{} With this restriction in mind,
@@ -557,7 +557,7 @@ the only weather predictors that survived the pruning was the \texttt{t2m}
 temperature and cloud-cover variables. 
 
 \paragraph{}The primary suspect is that the average of the weather effects 
-across the years between all thirteen sites was baked into the model hinge function 
+across the years between all twelve sites was baked into the model hinge function 
 coefficients.
 
 \paragraph{Final Recommendations and Impact} While acknowledging the constraints 
@@ -573,7 +573,7 @@ it offers significant practical utility:
     necessitates caution. The strong correlation with static site characteristics 
     (2020 Census populations, local energy providers) means the model's high 
     $R^2$ may not generalize well to novel locations outside the established 
-    parameters of the thirteen training sites. Further validation on independent 
+    parameters of the twelve training sites. Further validation on independent 
     site data is imperative to determine the model's true scope and utility.
 \end{itemize}
 
